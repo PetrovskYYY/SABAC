@@ -1,0 +1,11 @@
+[run]
+#source = sabac
+omit =
+    ./tests/*
+    setup.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+skip_covered = True
