@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sabac",
-    version="0.0.1",
+    version="0.0.1a",
     author="Yuriy Petrovskiy",
     author_email="yuriy.petrovskiy@gmail.com",
     description="Simple Attribute Based Access Control",
@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
