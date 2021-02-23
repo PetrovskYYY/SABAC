@@ -4,6 +4,11 @@ Simple Attribute Based Access Control
 Python implementation of Attribute Based Access Control (ABAC). 
 Design is based on XACML model, but is not its strict implementation.
 
+# Install
+```
+pip install sabac
+```
+
 # Features
 
 
@@ -55,7 +60,7 @@ print(result)  # Should return True
 
 - Implement all combining algorithms
 
-#References
+# References
 1. XACML 3.0 standard http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html
 2. XACML Algorithms combining truth tables https://xacml.io
 3. A popular ABAC/XACML introduction in Russian https://habr.com/ru/company/custis/blog/258861/#rule
