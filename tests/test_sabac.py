@@ -17,7 +17,7 @@ import logging
 # 3rd party imports
 import pytest
 # Local source imports
-from .sabac import PDP, PAP, PIP, InformationProvider, DenyBiasedPEP, deny_unless_permit, Request
+from sabac import PDP, PAP, PIP, InformationProvider, DenyBiasedPEP, deny_unless_permit, Request
 
 
 @pytest.fixture(scope="module")
