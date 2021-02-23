@@ -18,6 +18,7 @@ from .PIP import PIP, InformationProvider
 from .PEP import DenyBiasedPEP
 from .PDP import PDP
 from .PAP import PAP, FilePAP
+from .request import Request
 from .algorithm import *
 from .constants import *
 
