@@ -23,8 +23,7 @@ __status__ = "dev"
 # Standard library imports
 import logging
 # Local source imports
-from . import EFFECT_DENY, EFFECT_PERMIT, \
-    RESULT_NOT_APPLICABLE, RESULT_INDETERMINATE_D, RESULT_INDETERMINATE_P
+from .constants import *
 from .policy_element import PolicyElement
 from .response import Response
 
@@ -45,7 +44,6 @@ class Rule(PolicyElement):
         return result
 
     def update_from_json(self, json_data):
-        from . import RESULT_PERMIT, RESULT_DENY
         PolicyElement.update_from_json(self, json_data)
         if 'effect' in json_data:
             if json_data['effect'] in ['PERMIT', 'P', 1, True]:

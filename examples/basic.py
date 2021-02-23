@@ -1,14 +1,19 @@
-Simple Attribute Based Access Control
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# TODO Add file description
+"""
 
-# Description
-Python implementation of Attribute Based Access Control (ABAC). 
-Design is based on XACML model, but is not its strict implementation.
+"""
+__author__ = "Yuriy Petrovskiy"
+__copyright__ = "Copyright 2021, Exam backend"
+__credits__ = ["Yuriy Petrovskiy"]
+__license__ = "LGPL"
+__version__ = "0.0.0"
+__maintainer__ = "Yuriy Petrovskiy"
+__email__ = "yuriy.petrovskiy@gmail.com"
+__status__ = "dev"
 
-# Features
-
-
-# Example
-```
+# Local source imports
 from sabac import PDP, PAP, DenyBiasedPEP, deny_unless_permit
 
 # Creating Policy Administration Point
@@ -49,21 +54,5 @@ context = {
 result = pep.evaluate(context)
 
 print(result)  # Should return True
-```
 
-# TODO
-
-- Implement all combining algorithms
-
-#References
-1. XACML 3.0 standard http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html
-2. XACML Algorithms combining truth tables https://xacml.io
-3. A popular ABAC/XACML introduction in Russian https://habr.com/ru/company/custis/blog/258861/#rule
-
-# Build
-REF: https://packaging.python.org/tutorials/packaging-projects/
-```shell script
-python -m pip install --user --upgrade setuptools wheel
-python setup.py sdist bdist_wheel
-twine upload --repository testpypi dist/*
-```
+# EOF

@@ -45,7 +45,7 @@ def pdp_instance():
         "target": {
             'subject.attribute.roles': {'@contains': 'admin'},
         },
-        "algorithm": "deny-unless-permit",
+        "algorithm": "DENY_UNLESS_PERMIT",
         'rules': [
             {
                 "effect": "PERMIT",
@@ -64,7 +64,7 @@ def pdp_instance():
             'resource.type': 'user',
             'subject.id': {'!=': None},
         },
-        "algorithm": "deny-unless-permit",
+        "algorithm": "DENY_UNLESS_PERMIT",
         'rules': [
             {
                 "description": "User  can view his/her own profile",
@@ -119,7 +119,7 @@ def pdp_instance():
         "resource.type": {"@in": ["exam"]},
         "subject.department": {"!=": None}
       },
-      "algorithm": "deny-unless-permit",
+      "algorithm": "DENY_UNLESS_PERMIT",
       "rules": [
         {
           "description": "User can access exam list.",

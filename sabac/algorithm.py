@@ -14,8 +14,7 @@ __status__ = "dev"
 
 import logging
 # Local source imports
-from . import RESULT_DENY, RESULT_NOT_APPLICABLE, RESULT_PERMIT, \
-    RESULT_INDETERMINATE_D, RESULT_INDETERMINATE_P, RESULT_INDETERMINATE_DP
+from .constants import *
 
 # Rule combining algorithms
 # REF: https://www.axiomatics.com/blog/understanding-xacml-combining-algorithms/
@@ -68,7 +67,6 @@ def deny_unless_permit(old_response, new_response):
 
 
 def permit_unless_deny(old_value, new_value):
-    from . import RESULT_DENY
     if not old_value:
         # First value
         if new_value == RESULT_DENY:

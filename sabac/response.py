@@ -16,7 +16,7 @@ __status__ = "dev"
 # Standard library imports
 import copy
 # Local source imports
-from . import *
+from .constants import *
 
 
 class Response:

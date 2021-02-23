@@ -25,13 +25,13 @@ class PDP:
         if pap_instance is not None:
             self.PAP = pap_instance
         else:  # pragma: no cover
-            self.PAP = PAP()
+            self.PAP = PAP()  # Using empty PAP as a stub
 
         # Setting Policy Information Point
         if pip_instance is not None:
             self.PIP = pip_instance
         else:   # pragma: no cover
-            self.PIP = PIP()
+            self.PIP = PIP()  # Using empty PIP as a stub
 
     def evaluate(self, request):
         request.PDP = self

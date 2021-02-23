@@ -35,6 +35,9 @@ from .response import Response
 
 
 class Policy(PolicyElement):
+    def __init__(self, json_data=None, algorithm=None):
+        self.rules = []
+        PolicyElement.__init__(self, json_data, algorithm)
 
     def update_from_json(self, json_data):
         PolicyElement.update_from_json(self, json_data)
@@ -49,12 +52,10 @@ class Policy(PolicyElement):
                 raise ValueError(f"Unknown algorithm `{json_data['algorithm']}`.")
 
         if 'rules' in json_data:
-            self.rules = []
             for rule_data in json_data['rules']:
                 self.rules.append(Rule(rule_data))
         else:
             logging.warning("Policy should have at least one rule.")
-            self.rules = []
 
     def evaluate(self, request):
         if not self.check_target(request):

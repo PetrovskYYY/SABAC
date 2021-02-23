@@ -35,8 +35,7 @@ class FilePAP(PAP):
         PAP.__init__(self, algorithm=algorithm)
         self.load(file_name, encoding)
 
-
-    def  load(self, file_name, encoding='UTF-8'):
+    def load(self, file_name, encoding='UTF-8'):
         self.file_name = file_name
         self.encoding = encoding
         json_file = open(file_name, encoding=encoding)

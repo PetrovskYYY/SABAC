@@ -18,7 +18,7 @@ import logging
 
 class Action:
     def __init__(self, json_data):
-        from . import RESULT_PERMIT, RESULT_DENY
+        from .constants import RESULT_PERMIT, RESULT_DENY
         
         if not isinstance(json_data, dict):  # pragma: no cover
             raise ValueError("Dict should be provided by json_data attribute.")

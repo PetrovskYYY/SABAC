@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Simplified Attribute-Based Access Control
-
-Module dependency simplification file
+Development stub
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
@@ -14,11 +13,14 @@ __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 __status__ = "dev"
 
-from .PIP import PIP, InformationProvider
-from .PEP import DenyBiasedPEP
-from .PDP import PDP
-from .PAP import PAP, FilePAP
-from .algorithm import *
-from .constants import *
+# Standard library imports
+
+# 3rd party imports
+
+# Local source imports
+
+from .sabac import *
+
+
 
 # EOF

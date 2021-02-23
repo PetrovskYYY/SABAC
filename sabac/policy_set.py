@@ -30,7 +30,7 @@ __status__ = "dev"
 # Standard library imports
 import logging
 # Local source imports
-from . import RESULT_NOT_APPLICABLE
+from .constants import RESULT_NOT_APPLICABLE
 from .policy import Policy
 from .policy_element import PolicyElement
 from .algorithm import get_algorithm_by_name, POLICY_SET_ALGORITHMS

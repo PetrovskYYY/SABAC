@@ -16,9 +16,7 @@ __status__ = "dev"
 # Standard library imports
 import logging
 # Local source imports
-from . import PEP_TYPE_BASE, PEP_TYPE_DENY_BIASED, PEP_TYPE_PERMIT_BIASED, \
-    RESULT_PERMIT, RESULT_DENY, RESULT_NOT_APPLICABLE, \
-    RESULT_INDETERMINATE_D, RESULT_INDETERMINATE_P, RESULT_INDETERMINATE_DP
+from .constants import *
 from .request import Request
 from .response import Response
 

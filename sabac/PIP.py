@@ -123,7 +123,7 @@ class PIP:
 
                 if isinstance(calculated_attribute_value, list):
                     intersection = list(set(calculated_attribute_value) & set(context_attribute_value))
-                    return len(intersection) > 0  # if lists intersect then vaule is true
+                    return len(intersection) > 0  # if lists intersect then value is true
                 else:
                     return calculated_attribute_value in context_attribute_value
             else:
