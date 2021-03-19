@@ -62,5 +62,5 @@ print(result)  # Should return True
 
 # References
 1. XACML 3.0 standard http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html
-2. XACML Algorithms combining truth tables https://xacml.io
+2. XACML Algorithms combining truth tables https://www.axiomatics.com/blog/understanding-xacml-combining-algorithms/
 3. A popular ABAC/XACML introduction in Russian https://habr.com/ru/company/custis/blog/258861/#rule

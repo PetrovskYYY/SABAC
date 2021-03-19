@@ -35,7 +35,9 @@ def deny_unless_permit(old_response, new_response):
     Combines Old value with new value
     :param old_response: Response of previous evaluation if exists (may be None)
     :param new_response: Response object to combine with te previous response
-    :return: Response object
+    :return: Tuple:
+        [0] Response object
+        [1] Is decision final (True or False)
     """
 
     if not old_response:
@@ -49,7 +51,10 @@ def deny_unless_permit(old_response, new_response):
         # Strange case - it should not happen
         raise ValueError("deny_unless_permit algorithm with previous permit used again")
     else:
+        # Making object copy to avoid source object modification
         result = new_response.copy()
+
+        # Adding advices, obligations and used policies to current response
         result.join_data(old_response, prepend=True)
         if new_response.decision == RESULT_PERMIT:
             return result, True
@@ -66,24 +71,35 @@ def deny_unless_permit(old_response, new_response):
             raise ValueError('Incorrect result value: %s' % new_response.decision)
 
 
-def permit_unless_deny(old_value, new_value):
-    if not old_value:
-        # First value
-        if new_value == RESULT_DENY:
-            return RESULT_PERMIT, True
-        else:
-            return new_value, False
-    elif old_value == RESULT_DENY:
-        # Strange case - it should not happen
-        raise ValueError("permit_unless_deny algorithm with previous deny used again")
+def permit_unless_deny(old_response, new_response):
+    """
+    Returns PERMIT in all cases except explicit deny.
+    In case of deny decision considered final
+    Combines Old value with new value
+    :param old_response: Response of previous evaluation if exists (may be None)
+    :param new_response: Response object to combine with te previous response
+    :return: Tuple:
+        [0] Response object
+        [1] Is decision final (True or False)
+    """
+    # Making object copy to avoid source object modification
+    result = new_response.copy()
+
+    # Adding advices, obligations and used policies to current response
+    result.join_data(old_response, prepend=True)
+    if new_response.decision == RESULT_DENY:
+        return result, True
+    elif new_response.decision in [
+        RESULT_PERMIT,
+        RESULT_NOT_APPLICABLE,
+        RESULT_INDETERMINATE_D,
+        RESULT_INDETERMINATE_P,
+        RESULT_INDETERMINATE_DP
+    ]:
+        result.decision = RESULT_PERMIT
+        return result, False
     else:
-        if new_value == RESULT_DENY:
-            return RESULT_DENY, True
-        elif new_value in [RESULT_PERMIT, RESULT_NOT_APPLICABLE,
-                           RESULT_INDETERMINATE_D, RESULT_INDETERMINATE_P, RESULT_INDETERMINATE_DP]:
-            return RESULT_PERMIT, False
-        else:
-            raise ValueError('Incorrect result value: %s' % new_value)
+        raise ValueError('Incorrect result value: %s' % new_response.decision)
 
 
 def first_applicable(old_value, new_value):

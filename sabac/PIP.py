@@ -20,6 +20,20 @@ __status__ = "dev"
 import logging
 
 
+class InformationProvider:
+    """
+    Base class for information providers
+    """
+
+    @classmethod
+    def fetch(cls, request):
+        return cls.fetch_value(request.attributes)
+
+    @classmethod
+    def fetch_value(cls, request):
+        raise NotImplementedError()
+
+
 class PIP:
     """Policy Information Point"""
     def __init__(self):
@@ -35,6 +49,7 @@ class PIP:
             ))
 
         if '@' in attribute_value:
+            logging.debug(f"Evaluating `{attribute_value['@']}`...")
             # Extracting value by name
             if attribute_value['@'] in request.attributes:
                 return request.attributes[attribute_value['@']]
@@ -138,7 +153,12 @@ class PIP:
             logging.warning("Unknown operator '%s'." % attribute_value.keys())
             raise ValueError("Unknown operator '%s'." % attribute_value.keys())
 
-    def add_provider(self, provider):
+    def add_provider(self, provider: InformationProvider):
+        """
+        Adds policy information provider
+        :param provider:
+        :return:
+        """
         if not issubclass(provider, InformationProvider):
             raise ValueError("Only subclass of class InformationProvider could be added to PIP.")
         self._information_providers.append(provider)
@@ -148,6 +168,7 @@ class PIP:
             self._providers_by_provided_attribute.setdefault(provided_attribute, []).append(provider)
 
     def fetch_attribute(self, attribute_name, request):
+        # logging.debug(f"Fetching attribute '{attribute_name}'...")
         # Avoiding search for known attributes
         if attribute_name in request.attributes:
             return request.attributes[attribute_name]
@@ -169,18 +190,4 @@ class PIP:
             result = provider.fetch(request)
             if result is not None:
                 return result
-
-
-class InformationProvider:
-    """
-    Base class for information providers
-    """
-
-    @classmethod
-    def fetch(cls, request):
-        return cls.fetch_value(request.attributes)
-
-    @classmethod
-    def fetch_value(cls, request):
-        raise NotImplementedError()
 # EOF
