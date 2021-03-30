@@ -1,7 +1,8 @@
 [run]
-#source = sabac
+# source = sabac
 omit =
     ./tests/*
+    ./.tox/*
     setup.py
 
 [report]

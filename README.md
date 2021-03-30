@@ -1,4 +1,6 @@
+=====================================
 Simple Attribute Based Access Control
+=====================================
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![travis status](https://travis-ci.org/PetrovskYYY/SABAC.svg?branch=master)](https://travis-ci.org/PetrovskYYY/SABAC)
 [![Documentation Status](https://readthedocs.org/projects/sabac/badge/?version=latest)](https://sabac.readthedocs.io/en/latest/?badge=latest)
