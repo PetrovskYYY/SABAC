@@ -1,4 +1,10 @@
 Simple Attribute Based Access Control
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![travis status](https://travis-ci.org/PetrovskYYY/SABAC.svg?branch=master)](https://travis-ci.org/PetrovskYYY/SABAC)
+[![Documentation Status](https://readthedocs.org/projects/sabac/badge/?version=latest)](https://sabac.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/sabac.svg)](http://badge.fury.io/py/sabac)
+[![Coverage Status](https://coveralls.io/repos/github/PetrovskYYY/SABAC/badge.svg?branch=master)](https://coveralls.io/github/PetrovskYYY/SABAC?branch=master)
+[![Code Climate](https://codeclimate.com/github/PetrovskYYY/SABAC/badges/gpa.svg)](https://codeclimate.com/github/PetrovskYYY/SABAC)
 
 # Description
 Python implementation of Attribute Based Access Control (ABAC). 
