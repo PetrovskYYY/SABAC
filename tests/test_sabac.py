@@ -13,16 +13,17 @@ __email__ = "yuriy.petrovskiy@gmail.com"
 __status__ = "dev"
 
 # Standard library imports
+import os
 import logging
 # 3rd party imports
 import pytest
 # Local source imports
-from sabac import PDP, PAP, PIP, InformationProvider, DenyBiasedPEP, deny_unless_permit, Request
+from sabac import PDP, FilePAP, PIP, InformationProvider, DenyBiasedPEP, Request
 
 
 @pytest.fixture(scope="module")
 def pdp_instance():
-    # Prepairing logging
+    # Preparing logging
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s')
@@ -32,110 +33,9 @@ def pdp_instance():
     logger.addHandler(console_handler)
 
     # Creating Policy Administration Point
-    test_pap = PAP(deny_unless_permit)
-
-    # Adding policy to PAP
-    test_pap.add_item({
-        "description": "Admin permissions",
-        "target": {
-            'subject.attribute.roles': {'@contains': 'admin'},
-        },
-        "algorithm": "DENY_UNLESS_PERMIT",
-        'rules': [
-            {
-                "effect": "PERMIT",
-                "description": "Allow to manage users",
-                "target": {
-                    'resource.type': 'user',
-                    'action': {'@in': ['create', 'view', 'update', 'erase_personal_data', 'delete']},
-                },
-            }
-        ]
-    })
-
-    test_pap.add_item({
-        "description": "User  can view, edit, or erase_personal_data his/her own profile",
-        "target": {
-            'resource.type': 'user',
-            'subject.id': {'!=': None},
-        },
-        "algorithm": "DENY_UNLESS_PERMIT",
-        'rules': [
-            {
-                "description": "User  can view his/her own profile",
-                "target": {
-                    'action': 'view',
-                },
-                "condition": {
-                    'subject.id': {'==': 'resource.id'},
-                },
-                "effect": "PERMIT",
-            },
-            {
-                "description":
-                    "User  can edit, or erase_personal_data his/her own profile. "
-                    "Action should be logged (if possible).",
-                "target": {
-                    'action': {'@in': ['update', 'erase_personal_data']},
-                },
-                "condition": {
-                    'resource.id': {'==': 'subject.id'},
-                },
-                "effect": "PERMIT",
-                "advices": [{
-                    'action': 'log',
-                    'fulfill_on': 'PERMIT',
-                    'attributes': {
-                        'user': {'@': 'user'},
-                        'action': {'@': 'action'},
-                        'message': "User {user.display_name}(#{user.public_id}) is going to perform action {action} "
-                                   "on own profile."
-                    }
-                }],
-                "obligations": [
-                    {
-                        'action': 'admin_email',
-                        'fulfill_on': 'PERMIT',
-                        'attributes': {
-                            'user': {'@': 'user'},
-                            'action': {'@': 'action'},
-                            'message':
-                                "User {user.display_name}(#{user.public_id}) is going to erase own personal data."
-                        }
-                    }
-                ]
-            }
-        ]
-    })
-
-    test_pap.add_item({
-      "description": "Permissions for common department user",
-      "target": {
-        "resource.type": {"@in": ["exam"]},
-        "subject.department": {"!=": None}
-      },
-      "algorithm": "DENY_UNLESS_PERMIT",
-      "rules": [
-        {
-          "description": "User can access exam list.",
-          "effect": "PERMIT",
-          "target": {
-            "resource.type": "exam",
-            "action": {"@in": ["view"]},
-            "resource": None
-          }
-        },
-        {
-          "description": "User can view exam if he is member of department, that has access to this exam.",
-          "effect": "PERMIT",
-          "target": {
-            "resource.type": "exam",
-            "action": {"@in": ["view"]},
-            "resource.allowed_departments": {"@contains": {"@": "subject.department"}}
-          }
-        }
-      ]
-    })
+    # Using file to import policies
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    test_pap = FilePAP(f"{script_dir}/test_policies.json")
 
     # Creating Policy Information Point
     test_pip = PIP()
@@ -390,12 +290,12 @@ def test_pip_6(pdp_instance):
     # result = pdp_instance.evaluate(request)
 
     permit = test_pep.evaluate({
-    'subject': {},
-    'subject.department': ['moderators'],
-    'action': 'view',
-    'resource': 1,
-    'resource.type': 'exam',
-    'resource.allowed_departments': ['moderators']
+        'subject': {},
+        'subject.department': ['moderators'],
+        'action': 'view',
+        'resource': 1,
+        'resource.type': 'exam',
+        'resource.allowed_departments': ['moderators']
     }, True, debug=True)
     assert permit
 # EOF

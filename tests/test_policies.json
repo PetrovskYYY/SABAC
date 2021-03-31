@@ -1,0 +1,102 @@
+{
+  "algorithm": "DENY_UNLESS_PERMIT",
+  "description": "SABAC module test policies",
+  "items": [
+    {
+      "description": "Admin permissions",
+      "target": {
+        "subject.attribute.roles": {"@contains": "admin"}
+      },
+      "algorithm": "DENY_UNLESS_PERMIT",
+      "rules": [
+        {
+          "effect": "PERMIT",
+          "description": "Allow to manage users",
+          "target": {
+            "resource.type": "user",
+            "action": {"@in": ["create", "view", "update", "erase_personal_data", "delete"]}
+          }
+        }
+      ]
+    },
+    {
+      "description": "User  can view, edit, or erase_personal_data his/her own profile",
+      "target": {
+        "resource.type": "user",
+        "subject.id": {"!=": null}
+      },
+      "algorithm": "DENY_UNLESS_PERMIT",
+      "rules": [
+        {
+          "description": "User  can view his/her own profile",
+          "target": {
+            "action": "view"
+          },
+          "condition": {
+            "subject.id": {"==": "resource.id"}
+          },
+          "effect": "PERMIT"
+        },
+        {
+          "description": "User  can edit, or erase_personal_data his/her own profile. Action should be logged (if possible).",
+          "target": {
+            "action": {"@in": ["update", "erase_personal_data"]}
+          },
+          "condition": {
+            "resource.id": {"==": "subject.id"}
+          },
+          "effect": "PERMIT",
+          "advices": [{
+            "action": "log",
+            "fulfill_on": "PERMIT",
+            "attributes": {
+              "user": {"@": "user"},
+              "action": {"@": "action"},
+              "message": "User {user.display_name}(#{user.public_id}) is going to perform action {action} on own profile."
+            }
+          }],
+          "obligations": [
+            {
+              "action": "admin_email",
+              "fulfill_on": "PERMIT",
+              "attributes": {
+                "user": {"@": "user"},
+                "action": {"@": "action"},
+                "message":
+                "User {user.display_name}(#{user.public_id}) is going to erase own personal data."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Permissions for common department user",
+      "target": {
+        "resource.type": {"@in": ["exam"]},
+        "subject.department": {"!=": null}
+      },
+      "comment": "No algorithm set",
+      "rules": [
+        {
+          "description": "User can access exam list.",
+          "effect": "PERMIT",
+          "target": {
+            "resource.type": "exam",
+            "action": {"@in": ["view"]},
+            "resource": null
+          }
+        },
+        {
+          "description": "User can view exam if he is member of department, that has access to this exam.",
+          "effect": "PERMIT",
+          "target": {
+            "resource.type": "exam",
+            "action": {"@in": ["view"]},
+            "resource.allowed_departments": {"@contains": {"@": "subject.department"}}
+          }
+        }
+      ]
+    }
+  ]
+}

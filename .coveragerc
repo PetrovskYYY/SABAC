@@ -9,4 +9,7 @@ omit =
 exclude_lines =
     pragma: no cover
     def __repr__
+    raise ValueError
+    raise NotImplementedError
+    logging.warning
 skip_covered = True
