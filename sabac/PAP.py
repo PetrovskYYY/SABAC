@@ -39,7 +39,7 @@ class FilePAP(PAP):
         self.file_name = file_name
         self.encoding = encoding
         json_file = open(file_name, encoding=encoding)
-        data = json.load(json_file, encoding=encoding)
+        data = json.load(json_file)
         self.root_policy_set = PolicySet(data)
 
     def reload(self):
