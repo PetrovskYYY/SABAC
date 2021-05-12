@@ -45,10 +45,13 @@ class PIP:
     def evaluate_attribute_value(self, attribute_value, request):
         if len(attribute_value) == 0 or len(attribute_value) > 1:
             # There are more than one key in evaluation expression
-            raise ValueError('Calculated attributes should have only one element. %d given: %s.' % (
-                len(attribute_value),
-                attribute_value
+            # FixMe: Avoid calculation requests from userspace
+            logging.warning('Calculated attributes should have only one element, but {element_count} given: {attribute}.'.format(
+                element_count=len(attribute_value),
+                attribute=attribute_value
             ))
+            return None
+
 
         if '@' in attribute_value:
             logging.debug(f"Evaluating `{attribute_value['@']}`...")
@@ -146,11 +149,21 @@ class PIP:
             else:
                 return attribute_value['@contains'] in context_attribute_value
         elif '@in' in attribute_value:
-            if not isinstance(attribute_value['@in'], list):
-                logging.warning("Only attribute values of type list could be used with operator @in (%s given for %s).",
-                                attribute_value['@in'].__class__.__name__, attribute_name)
-                return False
-            return context_attribute_value in attribute_value['@in']
+            if isinstance(attribute_value['@in'], list):
+                return context_attribute_value in attribute_value['@in']
+            if isinstance(attribute_value['@in'], dict):
+                calculated_value = self.evaluate_attribute_value(attribute_value['@in'], request)
+                if isinstance(calculated_value, list):
+                    return context_attribute_value in calculated_value
+                else:
+                    logging.warning("Expression '{expression}' value ({calculated_value}) is not a list.".format(
+                        expression=attribute_value['@in'],
+                        calculated_value=calculated_value
+                    ))
+
+            logging.warning("Only attribute values of type list (or a expression that is resolving as a list) could be used with operator @in (%s given for %s).",
+                            attribute_value['@in'].__class__.__name__, attribute_name)
+            return False
         else:
             logging.warning("Unknown operator '%s'." % attribute_value.keys())
             raise ValueError("Unknown operator '%s'." % attribute_value.keys())
