@@ -205,6 +205,8 @@ class PIP:
             else:
                 # There is no way to get this attribute
                 logging.warning("No information providers found for attribute '%s'.", attribute_name)
+                import traceback
+                traceback.print_stack()
                 return None
 
         for provider in self._providers_by_provided_attribute[attribute_name]:
@@ -241,6 +243,8 @@ def get_object_by_path(root_object, path_parts, prefix=None):
         if prefix is not None:
             full_attribute_name = f"{prefix}.{path_parts[0]}"
         logging.warning(f"No information providers found for attribute '{full_attribute_name}'.")
+        import traceback
+        traceback.print_stack()
         # logging.debug(root_object)
         return None
 
