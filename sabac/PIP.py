@@ -46,12 +46,16 @@ class PIP:
         if len(attribute_value) == 0 or len(attribute_value) > 1:
             # There are more than one key in evaluation expression
             # FixMe: Avoid calculation requests from userspace
-            logging.warning('Calculated attributes should have only one element, but {element_count} given: {attribute}.'.format(
-                element_count=len(attribute_value),
-                attribute=attribute_value
-            ))
+            logging.warning(
+                'Calculated attributes should have only one element, but {element_count} given: {attribute}.'.format(
+                    element_count=len(attribute_value),
+                    attribute=attribute_value
+                )
+            )
+            logging.warning(f"Request: {request}")
+            import traceback
+            traceback.print_stack()
             return None
-
 
         if '@' in attribute_value:
             logging.debug(f"Evaluating `{attribute_value['@']}`...")
@@ -161,8 +165,12 @@ class PIP:
                         calculated_value=calculated_value
                     ))
 
-            logging.warning("Only attribute values of type list (or a expression that is resolving as a list) could be used with operator @in (%s given for %s).",
-                            attribute_value['@in'].__class__.__name__, attribute_name)
+            logging.warning(
+                "Only attribute values of type list (or a expression that is resolving as a list) "
+                "could be used with operator @in (%s given for %s).",
+                attribute_value['@in'].__class__.__name__,
+                attribute_name
+            )
             return False
         else:
             logging.warning("Unknown operator '%s'." % attribute_value.keys())
@@ -205,8 +213,7 @@ class PIP:
             else:
                 # There is no way to get this attribute
                 logging.warning("No information providers found for attribute '%s'.", attribute_name)
-                import traceback
-                traceback.print_stack()
+                logging.warning("Request data '%s'.", request)
                 return None
 
         for provider in self._providers_by_provided_attribute[attribute_name]:
@@ -243,9 +250,9 @@ def get_object_by_path(root_object, path_parts, prefix=None):
         if prefix is not None:
             full_attribute_name = f"{prefix}.{path_parts[0]}"
         logging.warning(f"No information providers found for attribute '{full_attribute_name}'.")
+        logging.warning("root_object '%s'.", root_object)
         import traceback
         traceback.print_stack()
-        # logging.debug(root_object)
         return None
 
     if len(path_parts) == 1:
