@@ -250,9 +250,9 @@ def get_object_by_path(root_object, path_parts, prefix=None):
         if prefix is not None:
             full_attribute_name = f"{prefix}.{path_parts[0]}"
         logging.warning(f"No information providers found for attribute '{full_attribute_name}'.")
-        logging.warning("root_object '%s'.", root_object)
-        import traceback
-        traceback.print_stack()
+        # logging.warning("root_object '%s'.", root_object)
+        # import traceback
+        # traceback.print_stack()
         return None
 
     if len(path_parts) == 1:
