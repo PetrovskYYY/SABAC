@@ -47,9 +47,10 @@ class PIP:
             # There are more than one key in evaluation expression
             # FixMe: Avoid calculation requests from userspace
             logging.warning(
-                'Calculated attributes should have only one element, but {element_count} given: {attribute}.'.format(
+                'Calculated attributes should have exactly one element, but {element_count} given: {attribute}.'.format(
                     element_count=len(attribute_value),
-                    attribute=attribute_value
+                    attribute=attribute_value,
+                    request=request
                 )
             )
             logging.warning(f"Request: {request}")
@@ -71,17 +72,21 @@ class PIP:
     def get_attribute_value(self, attribute_name, request):
         attribute_value = self.fetch_attribute(attribute_name, request)
 
-        if not isinstance(attribute_value, dict):
+        if isinstance(attribute_value, dict):
+            evaluated_attribute_value = self.evaluate_attribute_value(attribute_value, request)
+            if evaluated_attribute_value is None:
+                logging.warning(f"Found no value while evaluating attribute`{attribute_name}` in request {request}.")
+            return evaluated_attribute_value
+        else:
             # Value is already constant
             return attribute_value
-
-        return self.evaluate_attribute_value(attribute_value, request)
 
     def evaluate(self, attribute_name, attribute_value, request):
         context_attribute_value = self.get_attribute_value(attribute_name, request)
         # TODO: Cache value
 
         if not isinstance(attribute_value, dict):
+            # If attribute value is not evaluable we can compare them directly
             return context_attribute_value == attribute_value
 
         if len(attribute_value) > 1:
