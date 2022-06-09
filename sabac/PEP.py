@@ -95,4 +95,8 @@ class PermitBiasedPEP(PEP):
     def __init__(self, pdp_instance):
         PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PEP_TYPE_PERMIT_BIASED)
 
+
+class BasePEP(PEP):
+    def __init__(self, pdp_instance):
+        PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PEP_TYPE_BASE)
 # EOF
