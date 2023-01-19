@@ -44,7 +44,6 @@ class PEP:
 
     def evaluate_result(self, result):
         """
-
         :return:
             True if policy evaluation result is permit,
             False if deny
