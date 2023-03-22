@@ -9,8 +9,6 @@ Object structure:
 - obligations
 - advices
 """
-import logging
-
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
@@ -20,7 +18,6 @@ __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 __status__ = "dev"
 
-# Local source imports
 from .action import Obligation, Advice
 
 

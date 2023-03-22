@@ -12,14 +12,13 @@ __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 __status__ = "dev"
 
-# Standard library imports
 import logging
 
 
 class Action:
     def __init__(self, json_data):
         from .constants import RESULT_PERMIT, RESULT_DENY
-        
+
         if not isinstance(json_data, dict):  # pragma: no cover
             raise ValueError("Dict should be provided by json_data attribute.")
 
@@ -72,4 +71,5 @@ class ActionInstance:
 
     def execute(self):  # pragma: no cover
         raise NotImplementedError()
+
 # EOF

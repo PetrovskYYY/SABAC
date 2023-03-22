@@ -50,7 +50,7 @@ class PIP:
                 'Calculated attributes should have exactly one element, but {element_count} given: {attribute}.'.format(
                     element_count=len(attribute_value),
                     attribute=attribute_value,
-                    request=request
+                    # request=request
                 )
             )
             logging.warning(f"Request: {request}")

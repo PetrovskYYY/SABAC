@@ -12,15 +12,5 @@ __version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 __status__ = "dev"
-
-# Standard library imports
-
-# 3rd party imports
-
-# Local source imports
-
 from .sabac import *
-
-
-
 # EOF
