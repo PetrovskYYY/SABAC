@@ -53,7 +53,7 @@ class Rule(PolicyElement):
             else:
                 raise ValueError('Invalid effect value: %s' % json_data['effect'])
         else:
-            raise ValueError('No effect in rule')
+            raise ValueError(f'No effect in rule: {json_data}')
 
         if 'condition' in json_data:
             self.condition = json_data['condition']

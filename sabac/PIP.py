@@ -18,6 +18,7 @@ __status__ = "dev"
 
 # Standard library imports
 import logging
+from typing import List, Optional, Any
 
 
 class InformationProvider:
@@ -195,18 +196,31 @@ class PIP:
         for provided_attribute in provider.provided_attributes:
             self._providers_by_provided_attribute.setdefault(provided_attribute, []).append(provider)
 
-    def fetch_attribute(self, attribute_name, request):
+    def fetch_attribute(
+        self,
+        attribute_name: str,
+        request: "Request",
+        attribute_fetch_stack: Optional[List[str]] = None
+    ) -> Any:
         """
         Fetches attribute value by given attribute name
         :param attribute_name: Name of an attribute
         :param request: SABAC request object - used for querying sub attributes
+        :param attribute_fetch_stack: Stack of attribute names in case of recursion
         :return: found attribute value of None if attribute not available
         (or error occurred during attribute value resolution)
         """
-        # logging.debug(f"Fetching attribute '{attribute_name}'...")
         # Avoiding search for known attributes
         if attribute_name in request.attributes:
             return request.attributes[attribute_name]
+
+        if isinstance(attribute_fetch_stack, list):
+            if attribute_name in attribute_fetch_stack:
+                logging.warning(
+                    f"Circular dependency found in attribute call stack "
+                    f"while fetching attribute '{attribute_name}': {attribute_fetch_stack}"
+                )
+                return None
 
         # Attribute is absent in context
         if attribute_name not in self._providers_by_provided_attribute:
@@ -224,16 +238,29 @@ class PIP:
                 return None
 
         for provider in self._providers_by_provided_attribute[attribute_name]:
+            # Fetching all required attributes first
             for required_attribute in provider.required_attributes:
                 if required_attribute not in request.attributes:
-                    # Setting placeholder in request to avoid loop searches
-                    request.attributes[required_attribute] = None
                     # Searching for required attribute
-                    request.attributes[required_attribute] = self.fetch_attribute(required_attribute, request)
+                    new_fetch_stack = self._new_attribute_fetch_stack(attribute_name, attribute_fetch_stack)
+                    request.attributes[required_attribute] = self.fetch_attribute(
+                        required_attribute,
+                        request,
+                        new_fetch_stack
+                    )
+
             # Now all required attributes should be present in context
             result = provider.fetch(request)
             if result is not None:
                 return result
+
+    @staticmethod
+    def _new_attribute_fetch_stack(attribute_name: str, old_stack: Optional[List[str]] = None) -> List[str]:
+        result = []
+        if isinstance(old_stack, list):
+            result += old_stack
+        result.append(attribute_name)
+        return result
 
 
 def get_object_by_path(root_object, path_parts, prefix=None):
@@ -256,7 +283,7 @@ def get_object_by_path(root_object, path_parts, prefix=None):
         full_attribute_name = path_parts[0]
         if prefix is not None:
             full_attribute_name = f"{prefix}.{path_parts[0]}"
-        logging.warning(f"No information providers found for attribute '{full_attribute_name}' "
+        logging.info(f"No information providers found for attribute '{full_attribute_name}' "
                         f"for object ({root_object.__class__.__name__}){root_object}.")
         # logging.warning("root_object '%s'.", root_object)
         # import traceback
