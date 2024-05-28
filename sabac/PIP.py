@@ -217,8 +217,10 @@ class PIP:
                 return get_object_by_path(request.attributes, attribute_name_parts)
             else:
                 # There is no way to get this attribute
-                logging.warning("No information providers found for attribute '%s'.", attribute_name)
-                logging.warning("Request data '%s'.", request)
+                logging.warning(
+                    f"No information providers found for attribute '{attribute_name}'. "
+                    f"Request data:{request}."
+                )
                 return None
 
         for provider in self._providers_by_provided_attribute[attribute_name]:
