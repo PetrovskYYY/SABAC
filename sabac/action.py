@@ -69,7 +69,7 @@ class ActionInstance:
         self.source = None
         self.attributes = {}
 
-    def execute(self):  # pragma: no cover
-        raise NotImplementedError()
+    def execute(self):
+        raise NotImplementedError()  # pragma: no cover
 
 # EOF

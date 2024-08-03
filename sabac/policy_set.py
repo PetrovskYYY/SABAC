@@ -42,7 +42,7 @@ class PolicySet(Policy):
         PolicyElement.update_from_json(self, json_data)
 
         if 'algorithm' not in json_data:
-            logging.warning('No algorithm defined. Using default.')
+            logging.warning('No PolicySet algorithm defined. Using default.')
             self.algorithm = get_algorithm_by_name()
         else:
             if json_data['algorithm'] in POLICY_SET_ALGORITHMS:

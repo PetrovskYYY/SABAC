@@ -21,11 +21,11 @@ from .constants import *
 
 
 def deny_overrides(old_value, new_value):
-    raise NotImplementedError()
+    raise NotImplementedError()  # pragma: no cover
 
 
 def permit_overrides(old_value, new_value):
-    raise NotImplementedError()
+    raise NotImplementedError()  # pragma: no cover
 
 
 def deny_unless_permit(old_response, new_response):
@@ -47,7 +47,7 @@ def deny_unless_permit(old_response, new_response):
             return new_response, True
         else:
             return new_response, False
-    elif old_response.decision == RESULT_PERMIT:
+    elif old_response.decision == RESULT_PERMIT:  # pragma: no cover
         # Strange case - it should not happen
         raise ValueError("deny_unless_permit algorithm with previous permit used again")
     else:
@@ -67,7 +67,7 @@ def deny_unless_permit(old_response, new_response):
         ]:
             result.decision = RESULT_DENY
             return result, False
-        else:
+        else: # pragma: no cover
             raise ValueError('Incorrect result value: %s' % new_response.decision)
 
 
@@ -103,21 +103,21 @@ def permit_unless_deny(old_response, new_response):
 
 
 def first_applicable(old_value, new_value):
-    raise NotImplementedError()
+    raise NotImplementedError()  # pragma: no cover
 
 
 def ordered_deny_overrides(old_value, new_value):
-    raise NotImplementedError()
+    raise NotImplementedError()  # pragma: no cover
 
 
 def ordered_permit_overrides(old_value, new_value):
-    raise NotImplementedError()
+    raise NotImplementedError()  # pragma: no cover
 
 
 # Policy combining algorithms
 
 def only_one_applicable(old_value, new_value):
-    raise NotImplementedError()
+    raise NotImplementedError()  # pragma: no cover
 
 
 POLICY_ALGORITHMS = {

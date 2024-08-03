@@ -68,6 +68,8 @@ def pdp_instance():
     test_pdp = PDP(pap_instance=test_pap, pip_instance=test_pip)
     return test_pdp
 
+def test_pap_reload(pdp_instance):
+    pdp_instance.PAP.reload()
 
 def test_pep1(pdp_instance):
     context = {
