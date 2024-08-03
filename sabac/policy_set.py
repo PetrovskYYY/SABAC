@@ -30,6 +30,8 @@ __status__ = "dev"
 # Standard library imports
 import logging
 # Local source imports
+from typing import Optional, Union
+
 from .constants import RESULT_NOT_APPLICABLE
 from .policy import Policy
 from .policy_element import PolicyElement
@@ -42,6 +44,7 @@ class PolicySet(Policy):
         self.items = []
         super().__init__(*args, **kwargs)
 
+    @staticmethod
     def get_algorithm(json_data: dict):
         if 'algorithm' not in json_data:
             logging.warning('No PolicySet algorithm defined. Using default.')
@@ -51,18 +54,24 @@ class PolicySet(Policy):
         else:
             raise ValueError(f"Unknown algorithm {json_data['algorithm']}.")
 
+    @staticmethod
+    def create_policy_item(policy_data) -> Optional[Union[Policy, "PolicySet"]]:
+        if 'rules' in policy_data:
+            return Policy(policy_data)
+        elif 'items' in policy_data:
+            return PolicySet(policy_data)
+        else:
+            logging.warning("Unknown policy set item type: %s", policy_data)
+            return None
+
     def update_from_json(self, json_data):
         # Calling base class method
         PolicyElement.update_from_json(self, json_data)
         self.algorithm = self.get_algorithm(json_data)
 
         for policy_data in json_data.get('items', []):
-            if 'rules' in policy_data:
-                self.items.append(Policy(policy_data))
-            elif 'items' in policy_data:
-                self.items.append(PolicySet(policy_data))
-            else:  # pragma: no cover
-                logging.warning("Unknown policy set item type: %s", policy_data)
+            self.items.append(self.create_policy_item(policy_data))
+
         if len(json_data.get('items', [])) == 0:  # pragma: no cover
             logging.warning("Policy set should have at least one policy.")
 
