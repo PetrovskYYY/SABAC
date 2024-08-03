@@ -60,18 +60,13 @@ class PolicyElement:
                 self.target = json_data['target']
             else:
                 ValueError("Target should be a dict")
-        # else:
-        #     logging.warning("Target is a required attribute of policy element.")
-            # self.target = None
-        if 'obligations' in json_data:
-            self.obligations = []
-            for obligation in json_data['obligations']:
-                self.obligations.append(Obligation(obligation))
 
-        if 'advices' in json_data:
-            self.advices = []
-            for advice in json_data['advices']:
-                self.advices.append(Advice(advice))
+        def add_list_from_json(field, class_):
+            if field in json_data:
+                setattr(self, field, [class_(obj) for obj in json_data[field]])
+
+        add_list_from_json('obligations', Obligation)
+        add_list_from_json('advices', Advice)
 
     def evaluate(self, context):
         raise NotImplementedError("Unable to evaluate %s." % self.__class__.__name__)

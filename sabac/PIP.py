@@ -20,21 +20,9 @@ __status__ = "dev"
 import logging
 from typing import List, Optional, Any
 
-
-class InformationProvider:
-    """
-    Base class for information providers
-    """
-    def __init__(self):
-        self.provided_attributes = None
-
-    @classmethod
-    def fetch(cls, request):
-        return cls.fetch_value(request.attributes)
-
-    @classmethod
-    def fetch_value(cls, request):
-        raise NotImplementedError()
+from .information_provider import InformationProvider
+from .request import Request
+from .utils import get_object_by_path
 
 
 class PIP:
@@ -43,7 +31,7 @@ class PIP:
         self._information_providers = []
         self._providers_by_provided_attribute = {}
 
-    def evaluate_attribute_value(self, attribute_value: Any, request:"Request") -> Any:
+    def evaluate_attribute_value(self, attribute_value: Any, request: Request) -> Any:
         # FixMe: Avoid calculation requests from userspace
         result = None
         if len(attribute_value) != 1:
@@ -130,7 +118,7 @@ class PIP:
             attribute_name: str,
             attribute_value: Any,
             operand: Any,
-            request: "Request"
+            request: Request
     ) -> Optional[bool]:
         result = None
         if isinstance(operand, str):
@@ -151,7 +139,7 @@ class PIP:
             attribute_name: str,
             attribute_value: Any,
             operand: Any,
-            request: "Request"
+            request: Request
     ) -> Optional[bool]:
         result = None
         if isinstance(operand, str):
@@ -172,7 +160,7 @@ class PIP:
             attribute_name: str,
             attribute_value: Any,
             operand: Any,
-            request: "Request"
+            request: Request
     ) -> Optional[bool]:
         result = None
         if isinstance(operand, str):
@@ -193,7 +181,7 @@ class PIP:
             attribute_name: str,
             attribute_value: Any,
             operand: Any,
-            request: "Request"
+            request: Request
     ) -> Optional[bool]:
         result = None
         if attribute_value is None:
@@ -230,7 +218,7 @@ class PIP:
             attribute_name: str,
             attribute_value: Any,
             operand: Any,
-            request: "Request"
+            request: Request
     ) -> Optional[bool]:
         result = None
         if isinstance(operand, list):
@@ -271,7 +259,7 @@ class PIP:
     def fetch_attribute(
         self,
         attribute_name: str,
-        request: "Request",
+        request: Request,
         attribute_fetch_stack: Optional[List[str]] = None
     ) -> Any:
         """
@@ -331,51 +319,4 @@ class PIP:
             result += old_stack
         result.append(attribute_name)
         return result
-
-
-def get_object_by_path(root_object, path_parts, prefix=None):
-    """
-    Returns object using provided path and root object.
-    Functions treats dict keys and class properties as path parts
-    :param root_object: dict or class
-    :param path_parts: list of strings
-    :param prefix: prefix for path (used internally for recursion)
-    :return: Value of object that if found by given path or None if path resolution failed.
-    """
-    sub_object = None
-    if isinstance(root_object, dict) and path_parts[0] in root_object:
-        # Object is dict
-        sub_object = root_object[path_parts[0]]
-    elif hasattr(root_object, path_parts[0]):
-        # Object is some class that has required attribute or property
-        sub_object = getattr(root_object, path_parts[0])
-    else:
-        full_attribute_name = path_parts[0]
-        if prefix is not None:
-            full_attribute_name = f"{prefix}.{path_parts[0]}"
-        logging.info(
-            f"No information providers found for attribute '{full_attribute_name}' "
-            f"for object ({root_object.__class__.__name__}){root_object}."
-        )
-        # logging.warning("root_object '%s'.", root_object)
-        # import traceback
-        # traceback.print_stack()
-        return None
-
-    if len(path_parts) == 1:
-        # It is a last portion of given path
-        return sub_object
-
-    # There is at least one more level in path
-    new_prefix = prefix
-    if new_prefix is None:
-        new_prefix = path_parts[0]
-    else:
-        new_prefix = f"{new_prefix}.{path_parts[0]}"
-
-    return get_object_by_path(
-        root_object=sub_object,
-        path_parts=path_parts[1:],
-        prefix=new_prefix
-    )
 # EOF
