@@ -42,29 +42,29 @@ class PolicySet(Policy):
         self.items = []
         super().__init__(*args, **kwargs)
 
+    def get_algorithm(json_data: dict):
+        if 'algorithm' not in json_data:
+            logging.warning('No PolicySet algorithm defined. Using default.')
+            return get_algorithm_by_name()
+        elif json_data['algorithm'] in POLICY_SET_ALGORITHMS:
+            return get_algorithm_by_name(json_data['algorithm'])
+        else:
+            raise ValueError(f"Unknown algorithm {json_data['algorithm']}.")
+
     def update_from_json(self, json_data):
         # Calling base class method
         PolicyElement.update_from_json(self, json_data)
+        self.algorithm = self.get_algorithm(json_data)
 
-        if 'algorithm' not in json_data:
-            logging.warning('No PolicySet algorithm defined. Using default.')
-            self.algorithm = get_algorithm_by_name()
-        else:
-            if json_data['algorithm'] in POLICY_SET_ALGORITHMS:
-                self.algorithm = get_algorithm_by_name(json_data['algorithm'])
-            else:
-                raise ValueError(f"Unknown algorithm `{json_data['algorithm']}`.")
-
-        if 'items' in json_data:
-            for policy_data in json_data['items']:
-                if 'rules' in policy_data:
-                    self.items.append(Policy(policy_data))
-                elif 'items' in policy_data:
-                    self.items.append(PolicySet(policy_data))
-                else:  # pragma: no cover
-                    logging.warning("Unknown policy set item type: %s", policy_data)
-            if len(json_data['items']) == 0:  # pragma: no cover
-                logging.warning("Policy set should have at least one policy.")
+        for policy_data in json_data.get('items', []):
+            if 'rules' in policy_data:
+                self.items.append(Policy(policy_data))
+            elif 'items' in policy_data:
+                self.items.append(PolicySet(policy_data))
+            else:  # pragma: no cover
+                logging.warning("Unknown policy set item type: %s", policy_data)
+        if len(json_data.get('items', [])) == 0:  # pragma: no cover
+            logging.warning("Policy set should have at least one policy.")
 
     def evaluate(self, request):
         if not self.check_target(request):
