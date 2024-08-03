@@ -43,12 +43,12 @@ class Rule(PolicyElement):
 
         return result
 
-    def update_from_json(self, json_data):
+    def update_from_json(self, json_data: dict) -> None:
         PolicyElement.update_from_json(self, json_data)
         if 'effect' in json_data:
-            if json_data['effect'] in ['PERMIT', 'P', 1, True]:
+            if json_data['effect'] in PERMIT_SHORTCUTS:
                 self.effect = RESULT_PERMIT
-            elif json_data['effect'] in ['DENY', 'D', 0, False]:
+            elif json_data['effect'] in DENY_SHORTCUTS:
                 self.effect = RESULT_DENY
             else:
                 raise ValueError('Invalid effect value: %s' % json_data['effect'])
@@ -58,7 +58,7 @@ class Rule(PolicyElement):
         if 'condition' in json_data:
             self.condition = json_data['condition']
 
-    def evaluate(self, request):
+    def evaluate(self, request) -> Response:
         response = Response(request)
 
         if self.check_target(request) is False:

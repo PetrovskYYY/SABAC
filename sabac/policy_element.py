@@ -109,6 +109,7 @@ class PolicyElement:
         - resource - attribute related to resource that is to be accessed
         - action - attributes related to action that is to be done
         """
+        result = True
         context = request.attributes
         for policy_key, policy_constraint in policy_element_requirements.items():
             # print("%s - %s" % (key, value))
@@ -125,7 +126,8 @@ class PolicyElement:
                 if criteria_value is True:
                     continue
                 else:
-                    return False
+                    result = False
+                    break
 
             if isinstance(context[policy_key], dict):
                 # We have some advanced expression in context
@@ -138,8 +140,9 @@ class PolicyElement:
                 continue
             else:
                 # Key exists, but value is wrong
-                return False
-        return True
+                result = False
+                break
+        return result
 
     def __repr__(self):
         return "<{class_name} {data}>".format(

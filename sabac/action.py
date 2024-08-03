@@ -13,12 +13,11 @@ __email__ = "yuriy.petrovskiy@gmail.com"
 __status__ = "dev"
 
 import logging
+from .constants import RESULT_PERMIT, RESULT_DENY, PERMIT_SHORTCUTS, DENY_SHORTCUTS
 
 
 class Action:
     def __init__(self, json_data):
-        from .constants import RESULT_PERMIT, RESULT_DENY
-
         if not isinstance(json_data, dict):  # pragma: no cover
             raise ValueError("Dict should be provided by json_data attribute.")
 
@@ -36,9 +35,9 @@ class Action:
             raise ValueError("fulfill_on attribute should be defined.")
 
         if condition:
-            if condition in ['PERMIT', 'Permit', 'permit', 'P', '+']:
+            if condition in PERMIT_SHORTCUTS:
                 self.fulfill_on = RESULT_PERMIT
-            elif condition in ['DENY', 'Deny', 'deny', 'D', '-']:
+            elif condition in DENY_SHORTCUTS:
                 self.fulfill_on = RESULT_DENY
             else:  # pragma: no cover
                 logging.warning("Action element fulfill_on initialized with incorrect value: '%s'.", condition)

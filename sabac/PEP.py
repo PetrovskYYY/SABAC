@@ -53,21 +53,16 @@ class PEP:
                 return True
             elif result.decision == RESULT_DENY:
                 return False
-            elif result.decision in [
-                RESULT_INDETERMINATE_D,
-                RESULT_INDETERMINATE_P,
-                RESULT_INDETERMINATE_DP,
-                RESULT_NOT_APPLICABLE
-            ]:
-                if self.type == PEP_TYPE_BASE:
+            elif result.decision in UNDETERMINED_RESULTS:
+                if self.type == PEP_TYPE_BASE:  # pragma: no cover
                     raise ValueError('PDP evaluation result is %s for PEP_TYPE_BASE. This should not occur.' % result)
                 elif self.type == PEP_TYPE_DENY_BIASED:
                     return False
                 elif self.type == PEP_TYPE_PERMIT_BIASED:
                     return True
-                else:
+                else:  # pragma: no cover
                     raise ValueError('Unexpected PEP type: %s.' % self.type)
-        else:
+        else:  # pragma: no cover
             raise ValueError('Unexpected PDP evaluation result: %s.' % result)
 
     def evaluate(self, context, return_policy_id_list=False, debug=False):

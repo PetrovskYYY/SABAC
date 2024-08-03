@@ -38,7 +38,12 @@ from .response import Response
 
 
 class PolicySet(Policy):
-    def update_from_json(self, json_data, recursive=True):
+    def __init__(self, *args, **kwargs):
+        self.items = []
+        super().__init__(*args, **kwargs)
+
+    def update_from_json(self, json_data):
+        # Calling base class method
         PolicyElement.update_from_json(self, json_data)
 
         if 'algorithm' not in json_data:
@@ -51,19 +56,15 @@ class PolicySet(Policy):
                 raise ValueError(f"Unknown algorithm `{json_data['algorithm']}`.")
 
         if 'items' in json_data:
-            if recursive:
-                self.items = []
-                for policy_data in json_data['items']:
-                    if 'rules' in policy_data:
-                        self.items.append(Policy(policy_data))
-                    elif 'items' in policy_data:
-                        self.items.append(PolicySet(policy_data))
-                    else:  # pragma: no cover
-                        logging.warning("Unknown policy set item type: %s", policy_data)
-
-            elif len(json_data['items']) == 0:  # pragma: no cover
+            for policy_data in json_data['items']:
+                if 'rules' in policy_data:
+                    self.items.append(Policy(policy_data))
+                elif 'items' in policy_data:
+                    self.items.append(PolicySet(policy_data))
+                else:  # pragma: no cover
+                    logging.warning("Unknown policy set item type: %s", policy_data)
+            if len(json_data['items']) == 0:  # pragma: no cover
                 logging.warning("Policy set should have at least one policy.")
-                self.items = []
 
     def evaluate(self, request):
         if not self.check_target(request):
