@@ -7,12 +7,9 @@ __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
-__status__ = "dev"
 
-# Local source imports
 from .PAP import PAP
 from .PIP import PIP
 

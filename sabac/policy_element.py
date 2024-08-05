@@ -13,42 +13,45 @@ __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
-__status__ = "dev"
+
+from dataclasses import dataclass, field, InitVar
+from typing import Optional, List
 
 from .action import Obligation, Advice
 
 
+@dataclass(repr=False)
 class PolicyElement:
     """
     Abstract class that includes common elements for rules, policies and policy sets
     """
-    def __init__(self, json_data=None, algorithm=None):
-        self.description = None
-        self.obligations = []
-        self.advices = []
+    description: Optional[str] = None
+    target: Optional[str] = None
+    obligations: List[Obligation] = field(default_factory=list)
+    advices: List[Advice] = field(default_factory=list)
+    json_data: InitVar[Optional[dict]] = None
 
-        if json_data:
+    def __post_init__(self, json_data: Optional[dict] = None):
+        if json_data is not None:
             self.update_from_json(json_data)
-        else:
-            self.target = None
-            # self.obligations = []
-            # self.advices = []
 
-        if algorithm:
-            self.algorithm = algorithm
+    def __repr__(self):
+        return "<{class_name} {data}>".format(
+            class_name=self.__class__.__name__,
+            data=self.to_json()
+        )
 
     def to_json(self):
         result = {}
-        if hasattr(self, 'description') and self.description:
+        if self.description:
             result['description'] = self.description
-        if hasattr(self, 'target') and self.target:
+        if self.target:
             result['target'] = self.target
-        if hasattr(self, 'obligations') and self.obligations:
+        if self.obligations:
             result['obligations'] = self.obligations
-        if hasattr(self, 'advices') and self.advices:
+        if self.advices:
             result['advices'] = self.advices
         return result
 
@@ -79,7 +82,8 @@ class PolicyElement:
             True - if target matches context
             False - if target NOT matches context
             Exception instance - if exception occurred during check
-
+        May raise exceptions:
+            ValueError
         """
         if not hasattr(self, 'target') or not self.target:
             # Empty target may be used to group policy elements
@@ -90,7 +94,7 @@ class PolicyElement:
         return self.context_match(self.target, request)
 
     @staticmethod
-    def context_match(policy_element_requirements, request):
+    def context_match(policy_element_requirements, request) -> bool:
         """
         Compares given criteria with context.
         :param policy_element_requirements: Requirements of current policy element
@@ -98,8 +102,7 @@ class PolicyElement:
         :return:
             True - criteria matches with context
             False - criteria NOT matches with context
-            Exception instance - if exception occurred during check
-        Attributes can be of 3 subtypes: 
+        Attributes can be of 3 subtypes:
         - subject - attributes related to subject that trying to get access
         - resource - attribute related to resource that is to be accessed
         - action - attributes related to action that is to be done
@@ -107,7 +110,6 @@ class PolicyElement:
         result = True
         context = request.attributes
         for policy_key, policy_constraint in policy_element_requirements.items():
-            # print("%s - %s" % (key, value))
             if policy_key not in context:
                 # Key is NOT in context
                 # Requesting attribute value from PDP/PIP
@@ -138,12 +140,6 @@ class PolicyElement:
                 result = False
                 break
         return result
-
-    def __repr__(self):
-        return "<{class_name} {data}>".format(
-            class_name=self.__class__.__name__,
-            data=self.to_json()
-        )
 
     def handle_actions(self, response):
         if hasattr(self, 'obligations'):

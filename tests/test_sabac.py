@@ -13,6 +13,7 @@ __email__ = "yuriy.petrovskiy@gmail.com"
 __status__ = "dev"
 
 # Standard library imports
+import json
 import os
 import logging
 # 3rd party imports
@@ -68,24 +69,27 @@ def pdp_instance():
     test_pdp = PDP(pap_instance=test_pap, pip_instance=test_pip)
     return test_pdp
 
+
 def test_pap_reload(pdp_instance):
     pdp_instance.PAP.reload()
+
 
 def test_pep1(pdp_instance):
     context = {
         'resource.type': 'user',
         'action': 'create',
-        'subject.id': 1
+        'subject': {'id': 1},
+        # 'subject.id': 1
     }
     test_pep = DenyBiasedPEP(pdp_instance)
-    assert not test_pep.evaluate(context)
+    assert test_pep.evaluate(context)
 
 
 def test_pep2(pdp_instance):
     context = {
         'resource.type': 'user',
         'action': 'create',
-        'subject.id': 2
+        'subject': {'id': 2},
     }
 
     test_pep = DenyBiasedPEP(pdp_instance)
@@ -99,46 +103,76 @@ def test_pep3(pdp_instance):
     context = {
         'resource.type': 'user',
         'action': 'view',
-        'subject.id': 1
+        'subject': {'id': 1},
     }
     test_pep = DenyBiasedPEP(pdp_instance)
     assert not test_pep.evaluate(context)
 
 
 def test_pep4(pdp_instance):
+    """
+    User may view own properties
+    """
     context = {
-        'resource.type': 'user',
-        'resource.id': {'@': 'subject.id'},
+        'resource': {
+            'type': 'user',
+            'id': 2
+        },
         'action': 'view',
-        'subject.id': 1
+        'subject': {'id': 2},
     }
 
     test_pep = DenyBiasedPEP(pdp_instance)
-    assert test_pep.evaluate(context, True, debug=True)
+    assert test_pep.evaluate(context)
 
 
 def test_pep5(pdp_instance):
+    """
+    Admin can view other users
+    """
+    context = {
+        'resource': {
+            'type': 'user',
+            'id': 2
+        },
+        'action': 'view',
+        'subject': {'id': 1},
+    }
+
+    test_pep = DenyBiasedPEP(pdp_instance)
+    assert test_pep.evaluate(context)
+
+
+def test_pep5_1(pdp_instance):
+    """
+    Common users can NOT view other users
+    """
+    context = {
+        'resource': {
+            'type': 'user',
+            'id': 1
+        },
+        'action': 'view',
+        'subject': {'id': 2},
+    }
+
+    test_pep = DenyBiasedPEP(pdp_instance)
+    assert not test_pep.evaluate(context)
+
+
+def test_pep6(pdp_instance):
+    """
+    Any user can edit own properties
+    """
     context = {
         'resource.type': 'user',
         'resource.id': 2,
         'action': 'view',
-        'subject.id': 1
+        'subject.id': 2
     }
 
     test_pep = DenyBiasedPEP(pdp_instance)
-    assert not test_pep.evaluate(context, True)
-
-
-def test_pep6(pdp_instance):
-    context = {
-        'resource.type': 'user',
-        'resource.id': 1,
-        'action': 'view',
-        'subject.id': 1
-    }
-
-    test_pep = DenyBiasedPEP(pdp_instance)
-    assert test_pep.evaluate(context, True, debug=True)
+    assert test_pep.evaluate(context)
 
 
 def test_pep7(pdp_instance):
@@ -149,7 +183,7 @@ def test_pep7(pdp_instance):
         'resource.type': 'user',
         'resource.id': 5,
         'action': 'update',
-        'subject.id': 1
+        'subject.id': 2
     }
 
     test_pep = DenyBiasedPEP(pdp_instance)
@@ -217,7 +251,7 @@ def test_pip_2(pdp_instance):
     }
 
     test_pep = DenyBiasedPEP(pdp_instance)
-    assert not test_pep.evaluate(context, True, debug=True)
+    assert not test_pep.evaluate(context, True)
 
 
 def test_pip_3(pdp_instance):
@@ -227,13 +261,12 @@ def test_pip_3(pdp_instance):
     context = {
         'resource.type': 'user',
         'action': 'view',
-        'subject.attribute.roles': None,
         'subject.id': 1,
         'resource.id': None
     }
 
     test_pep = DenyBiasedPEP(pdp_instance)
-    assert not test_pep.evaluate(context, True, debug=True)
+    assert not test_pep.evaluate(context, True)
 
 
 def test_pip_4(pdp_instance):
@@ -292,7 +325,7 @@ def test_pip_6(pdp_instance):
     # result = pdp_instance.evaluate(request)
 
     permit = test_pep.evaluate({
-        'subject': {},
+        'subject.id': 2,
         'subject.department': ['moderators'],
         'action': 'view',
         'resource': 1,
@@ -300,4 +333,17 @@ def test_pip_6(pdp_instance):
         'resource.allowed_departments': ['moderators']
     }, True, debug=True)
     assert permit
+
+
+def test_tests_from_file(pdp_instance):
+    """
+    Loads list of tests from JSON file
+    """
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    json_file = open(f"{script_dir}/policy_tests.json")
+    test_json_data = json.load(json_file)
+    test_pep = DenyBiasedPEP(pdp_instance)
+    tests_result = test_pep.run_tests(test_json_data)
+
+    assert tests_result == []
 # EOF

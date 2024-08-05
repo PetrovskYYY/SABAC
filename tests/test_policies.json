@@ -3,26 +3,75 @@
   "description": "SABAC module test policies",
   "items": [
     {
-      "description": "Admin permissions",
+      "description": "Unidentified user policy.",
       "target": {
-        "subject.attribute.roles": {"@contains": "admin"}
+        "subject": null
       },
       "algorithm": "DENY_UNLESS_PERMIT",
       "rules": [
         {
-          "effect": "PERMIT",
-          "description": "Allow to manage users",
+          "description": "Deny self registration.",
+          "effect": "DENY",
           "target": {
             "resource.type": "user",
-            "action": {"@in": ["create", "view", "update", "erase_personal_data", "delete"]}
+            "action": "register"
+          }
+        },
+        {
+          "description": "Allow login.",
+          "effect": "PERMIT",
+          "target": {
+            "action": {"@in": ["login","email_confirmation","password_reset"]}
+          }
+        },
+        {
+          "description": "Rule to check operation null @contains x ",
+          "effect": "DENY",
+          "target": {
+            "resource.type": "user",
+            "action": "login",
+            "subject": {"@contains": 1}
+          }
+        },
+        {
+          "description": "Allow logout",
+          "effect": "PERMIT",
+          "target": {
+            "resource.type": "user",
+            "action": "logout"
           }
         }
       ]
     },
     {
-      "description": "User  can view, edit, or erase_personal_data his/her own profile",
+      "description": "Admin permissions",
       "target": {
-        "resource.type": "user",
+        "subject.id": {"@in": [1]}
+      },
+      "algorithm": "DENY_UNLESS_PERMIT",
+      "rules": [
+        {
+          "effect": "PERMIT",
+          "description": "Allow to create users",
+          "target": {
+            "resource.type": "user",
+            "action": "create"
+          }
+        },
+        {
+          "effect": "PERMIT",
+          "description": "Allow to manage users",
+          "target": {
+            "resource.type": "user",
+            "resource.id": {"!=": null},
+            "action": {"@in": ["view", "update", "delete"]}
+          }
+        }
+      ]
+    },
+    {
+      "description": "Identified user",
+      "target": {
         "subject.id": {"!=": null}
       },
       "algorithm": "DENY_UNLESS_PERMIT",
@@ -30,6 +79,7 @@
         {
           "description": "User  can view his/her own profile",
           "target": {
+            "resource.type": "user",
             "action": "view"
           },
           "condition": {
@@ -40,6 +90,7 @@
         {
           "description": "User  can edit, or erase_personal_data his/her own profile. Action should be logged (if possible).",
           "target": {
+            "resource.type": "user",
             "action": {"@in": ["update", "erase_personal_data"]}
           },
           "condition": {
@@ -72,6 +123,7 @@
     },
     {
       "description": "Permissions for common department user",
+      "algorithm": "DENY_UNLESS_PERMIT",
       "target": {
         "resource.type": {"@in": ["exam"]},
         "subject.department": {"!=": null}
@@ -84,7 +136,7 @@
           "target": {
             "resource.type": "exam",
             "action": {"@in": ["view"]},
-            "resource": null
+            "resource": {"==": null}
           }
         },
         {

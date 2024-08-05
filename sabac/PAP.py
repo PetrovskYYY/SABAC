@@ -7,14 +7,14 @@ __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, sabac"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
-__status__ = "dev"
 
 # Standard library imports
 import json
 # Local source imports
+from dataclasses import dataclass
+
 from .algorithm import deny_unless_permit
 from .policy_set import PolicySet
 
@@ -40,7 +40,7 @@ class FilePAP(PAP):
         self.encoding = encoding
         json_file = open(file_name, encoding=encoding)
         data = json.load(json_file)
-        self.root_policy_set = PolicySet(data)
+        self.root_policy_set = PolicySet(json_data=data)
 
     def reload(self):
         self.load(self.file_name, self.encoding)

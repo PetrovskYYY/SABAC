@@ -7,17 +7,17 @@ __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
-__status__ = "dev"
 
 import logging
-# Local source imports
+from typing import Tuple
+
 from .constants import *
 
 # Rule combining algorithms
 # REF: https://www.axiomatics.com/blog/understanding-xacml-combining-algorithms/
+from .response import Response
 
 
 def deny_overrides(old_value, new_value):
@@ -67,11 +67,11 @@ def deny_unless_permit(old_response, new_response):
         ]:
             result.decision = RESULT_DENY
             return result, False
-        else: # pragma: no cover
+        else:  # pragma: no cover
             raise ValueError('Incorrect result value: %s' % new_response.decision)
 
 
-def permit_unless_deny(old_response, new_response):
+def permit_unless_deny(old_response, new_response) -> Tuple[Response, bool]:
     """
     Returns PERMIT in all cases except explicit deny.
     In case of deny decision considered final
@@ -98,7 +98,7 @@ def permit_unless_deny(old_response, new_response):
     ]:
         result.decision = RESULT_PERMIT
         return result, False
-    else:
+    else:  # pragma: no cover
         raise ValueError('Incorrect result value: %s' % new_response.decision)
 
 

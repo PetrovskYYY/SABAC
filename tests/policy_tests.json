@@ -1,0 +1,32 @@
+[
+  {
+    "description": "Unauthorized users should be able to access authorization",
+    "context": {
+      "subject": null,
+      "subject.id": null,
+      "action": "login"
+    },
+    "result": "Permit"
+  },
+  {
+    "description": "Unauthorized users should NOT be able to log out",
+    "context": {
+      "subject": null,
+      "subject.id": null,
+      "action": "logout"
+    },
+    "result": "Deny"
+  },
+  {
+    "description": "User can delete own personal data (advised action should be executed)",
+    "context": {
+      "subject": {"id": 2},
+      "action": "erase_personal_data",
+      "resource": {
+        "type": "user",
+        "id": 2
+      }
+    },
+    "result": "Permit"
+  }
+]

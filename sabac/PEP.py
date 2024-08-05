@@ -8,14 +8,12 @@ __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
-__status__ = "dev"
 
-# Standard library imports
 import logging
-# Local source imports
+from typing import List, Dict
+
 from .constants import *
 from .request import Request
 from .response import Response
@@ -26,9 +24,6 @@ class PEP:
     Policy Enforcement Point
     """
     def __init__(self, pdp_instance, pep_type=PEP_TYPE_DENY_BIASED):
-        """
-
-        """
         self.PDP = pdp_instance
         self.type = pep_type
 
@@ -78,6 +73,58 @@ class PEP:
         """
         result = self.get_result(context, return_policy_id_list, debug)
         return self.evaluate_result(result)
+
+    def run_tests(self, tests:List[Dict]) -> List:
+        """
+        :param tests: List of tests in the following  format:
+                {
+                    "description": "Unauthorized users should be able to access authorization",
+                    "context": {
+                      "user": null,
+                      "action": "login"
+                    },
+                    "result": "Permit"
+                }
+        :return List of failed tests
+        """
+        result = []
+        for test in tests:
+            if 'result' in test:
+                if test['result'] in PERMIT_SHORTCUTS:
+                    expected_result = True
+                elif test['result'] in DENY_SHORTCUTS:
+                    expected_result = False
+                else:
+                    result.append({
+                        'reason': TestFailReasons.BAD_FORMAT,
+                        'message': "Invalid expected test result format",
+                        'test': test
+                    })
+                    continue
+            else:
+                expected_result = True
+
+            if 'context' in test:
+                permit = self.evaluate(test['context'])
+                if permit != expected_result:
+                    # Rerunning with debug
+                    self.evaluate(
+                        context=test['context'],
+                        return_policy_id_list=True,
+                        debug=True
+                    )
+                    result.append({
+                        'reason': TestFailReasons.FAILED,
+                        'message': "Test failed",
+                        'test': test
+                    })
+            else:
+                result.append({
+                    'reason': TestFailReasons.BAD_FORMAT,
+                    'message': "Test has no defined context",
+                    'test': test
+                })
+        return result
 
 
 class DenyBiasedPEP(PEP):

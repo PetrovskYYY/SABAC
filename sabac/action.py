@@ -7,10 +7,8 @@ __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
-__status__ = "dev"
 
 import logging
 from .constants import RESULT_PERMIT, RESULT_DENY, PERMIT_SHORTCUTS, DENY_SHORTCUTS

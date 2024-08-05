@@ -7,12 +7,12 @@ __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__version__ = "0.0.0"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
-__status__ = "dev"
 
 # Rule effect constants
+from enum import Enum, auto
+
 EFFECT_PERMIT = 'Permit'
 EFFECT_DENY = 'Deny'
 
@@ -40,4 +40,10 @@ UNDETERMINED_RESULTS = [
     RESULT_INDETERMINATE_DP,
     RESULT_NOT_APPLICABLE
 ]
+
+
+# Reasons of test failure:
+class TestFailReasons(Enum):
+    FAILED = auto()
+    BAD_FORMAT = auto()
 # EOF
