@@ -16,14 +16,43 @@ from enum import Enum, auto
 EFFECT_PERMIT = 'Permit'
 EFFECT_DENY = 'Deny'
 
+
 # Rule evaluation result constants
-RESULT_PERMIT = EFFECT_PERMIT
-RESULT_DENY = EFFECT_DENY
-RESULT_NOT_APPLICABLE = 'NotApplicable'
-RESULT_INDETERMINATE = 'Indeterminate'
-RESULT_INDETERMINATE_D = 'Indeterminate/D'
-RESULT_INDETERMINATE_P = 'Indeterminate/P'
-RESULT_INDETERMINATE_DP = 'Indeterminate/DP'
+class RuleEvaluationResult(Enum):
+    PERMIT = auto()
+    DENY = auto()
+    NOT_APPLICABLE = auto()
+    INDETERMINATE = auto()
+    INDETERMINATE_D = auto()
+    INDETERMINATE_P = auto()
+    INDETERMINATE_DP = auto()
+
+    @property
+    def shortcut(self):
+        if self == self.PERMIT:
+            return 'P'
+        elif self == self.DENY:
+            return 'D'
+        elif self == self.NOT_APPLICABLE:
+            return 'NA'
+        elif self == self.INDETERMINATE:
+            return 'I'
+        elif self == self.INDETERMINATE_P:
+            return 'I/P'
+        elif self == self.INDETERMINATE_D:
+            return 'I/D'
+        elif self == self.INDETERMINATE_DP:
+            return 'I/DP'
+        else:
+            raise ValueError(f"Unexpected rule evaluation result value: {self}")
+
+RESULT_PERMIT = RuleEvaluationResult.PERMIT
+RESULT_DENY = RuleEvaluationResult.DENY
+RESULT_NOT_APPLICABLE = RuleEvaluationResult.NOT_APPLICABLE
+RESULT_INDETERMINATE = RuleEvaluationResult.INDETERMINATE
+RESULT_INDETERMINATE_D = RuleEvaluationResult.INDETERMINATE_D
+RESULT_INDETERMINATE_P = RuleEvaluationResult.INDETERMINATE_P
+RESULT_INDETERMINATE_DP = RuleEvaluationResult.INDETERMINATE_DP
 
 # PEP types
 PEP_TYPE_BASE = RESULT_INDETERMINATE
