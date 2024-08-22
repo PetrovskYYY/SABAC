@@ -15,6 +15,7 @@ import logging
 from typing import List, Dict
 
 from .constants import *
+from .exceptions import TestFailedException
 from .request import Request
 from .response import Response
 
@@ -23,7 +24,7 @@ class PEP:
     """
     Policy Enforcement Point
     """
-    def __init__(self, pdp_instance, pep_type=PEP_TYPE_DENY_BIASED):
+    def __init__(self, pdp_instance, pep_type=PolicyEnforcementPointType.DENY_BIASED):
         self.PDP = pdp_instance
         self.type = pep_type
 
@@ -49,11 +50,11 @@ class PEP:
             elif result.decision == RESULT_DENY:
                 return False
             elif result.decision in UNDETERMINED_RESULTS:
-                if self.type == PEP_TYPE_BASE:  # pragma: no cover
-                    raise ValueError('PDP evaluation result is %s for PEP_TYPE_BASE. This should not occur.' % result)
-                elif self.type == PEP_TYPE_DENY_BIASED:
+                if self.type == PolicyEnforcementPointType.BASE:  # pragma: no cover
+                    raise ValueError('PDP evaluation result is %s for PolicyEnforcementPointType.BASE. This should not occur.' % result)
+                elif self.type == PolicyEnforcementPointType.DENY_BIASED:
                     return False
-                elif self.type == PEP_TYPE_PERMIT_BIASED:
+                elif self.type == PolicyEnforcementPointType.PERMIT_BIASED:
                     return True
                 else:  # pragma: no cover
                     raise ValueError('Unexpected PEP type: %s.' % self.type)
@@ -74,6 +75,20 @@ class PEP:
         result = self.get_result(context, return_policy_id_list, debug)
         return self.evaluate_result(result)
 
+    def parse_expected_test_result(self,test: dict):
+        result = True
+        if 'result' in test:
+            if test['result'] in PERMIT_SHORTCUTS:
+                result = True
+            elif test['result'] in DENY_SHORTCUTS:
+                result = False
+            else:
+                raise TestFailedException(
+                    reason=TestFailReasons.BAD_FORMAT,
+                    message="Invalid expected test result format"
+                )
+        return result
+
     def run_tests(self, tests:List[Dict]) -> List:
         """
         :param tests: List of tests in the following  format:
@@ -89,21 +104,14 @@ class PEP:
         """
         result = []
         for test in tests:
-            if 'result' in test:
-                if test['result'] in PERMIT_SHORTCUTS:
-                    expected_result = True
-                elif test['result'] in DENY_SHORTCUTS:
-                    expected_result = False
-                else:
-                    result.append({
-                        'reason': TestFailReasons.BAD_FORMAT,
-                        'message': "Invalid expected test result format",
-                        'test': test
-                    })
-                    continue
-            else:
-                expected_result = True
-
+            try:
+                expected_result = self.parse_expected_test_result(test)
+            except TestFailedException as e:
+                result.append({
+                    'reason': e.reason,
+                    'message': e.message,
+                    'test': test
+                })
             if 'context' in test:
                 permit = self.evaluate(test['context'])
                 if permit != expected_result:
@@ -129,15 +137,15 @@ class PEP:
 
 class DenyBiasedPEP(PEP):
     def __init__(self, pdp_instance):
-        PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PEP_TYPE_DENY_BIASED)
+        PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PolicyEnforcementPointType.DENY_BIASED)
 
 
 class PermitBiasedPEP(PEP):
     def __init__(self, pdp_instance):
-        PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PEP_TYPE_PERMIT_BIASED)
+        PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PolicyEnforcementPointType.PERMIT_BIASED)
 
 
 class BasePEP(PEP):
     def __init__(self, pdp_instance):
-        PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PEP_TYPE_BASE)
+        PEP.__init__(self, pdp_instance=pdp_instance, pep_type=PolicyEnforcementPointType.BASE)
 # EOF

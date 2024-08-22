@@ -10,11 +10,13 @@ __license__ = "LGPL"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
-# Rule effect constants
 from enum import Enum, auto
 
-EFFECT_PERMIT = 'Permit'
-EFFECT_DENY = 'Deny'
+
+# Rule effect constants
+class RuleEffect(Enum):
+    PERMIT = auto()
+    DENY = auto()
 
 
 # Rule evaluation result constants
@@ -28,23 +30,29 @@ class RuleEvaluationResult(Enum):
     INDETERMINATE_DP = auto()
 
     @property
-    def shortcut(self):
+    def shortcut(self) -> str:
         if self == self.PERMIT:
-            return 'P'
+            result = 'P'
         elif self == self.DENY:
-            return 'D'
+            result = 'D'
         elif self == self.NOT_APPLICABLE:
-            return 'NA'
+            result = 'NA'
         elif self == self.INDETERMINATE:
-            return 'I'
+            result = 'I'
         elif self == self.INDETERMINATE_P:
-            return 'I/P'
+            result = 'I/P'
         elif self == self.INDETERMINATE_D:
-            return 'I/D'
+            result = 'I/D'
         elif self == self.INDETERMINATE_DP:
-            return 'I/DP'
+            result = 'I/DP'
         else:
             raise ValueError(f"Unexpected rule evaluation result value: {self}")
+        return result
+
+
+# class PolicyEvaluationResult(RuleEvaluationResult):
+# class PolicySetEvaluationResult(PolicySetEvaluationResult):
+
 
 RESULT_PERMIT = RuleEvaluationResult.PERMIT
 RESULT_DENY = RuleEvaluationResult.DENY
@@ -54,10 +62,13 @@ RESULT_INDETERMINATE_D = RuleEvaluationResult.INDETERMINATE_D
 RESULT_INDETERMINATE_P = RuleEvaluationResult.INDETERMINATE_P
 RESULT_INDETERMINATE_DP = RuleEvaluationResult.INDETERMINATE_DP
 
+
 # PEP types
-PEP_TYPE_BASE = RESULT_INDETERMINATE
-PEP_TYPE_PERMIT_BIASED = EFFECT_PERMIT
-PEP_TYPE_DENY_BIASED = EFFECT_DENY
+class PolicyEnforcementPointType(Enum):
+    BASE = auto()
+    PERMIT_BIASED = auto()
+    DENY_BIASED = auto()
+
 
 # Shortcuts
 PERMIT_SHORTCUTS = ['PERMIT', 'Permit', 'permit', 'P', '+', 1, True]
@@ -75,4 +86,14 @@ UNDETERMINED_RESULTS = [
 class TestFailReasons(Enum):
     FAILED = auto()
     BAD_FORMAT = auto()
+
+    @property
+    def text(self) -> str:
+        if self == self.FAILED:
+            result = 'Test failed'
+        elif self == self.BAD_FORMAT:
+            result = 'Bad test format'
+        else:
+            raise ValueError(f"Unexpected rule evaluation result value: {self}")
+        return result
 # EOF
