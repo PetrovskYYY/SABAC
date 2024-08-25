@@ -44,5 +44,6 @@ jobs:
     - name: Generate test coverage information
       run: |
         PYTHONPATH=. coverage run -m pytest ./tests
+        coverage report -m
         ./cc-test-reporter after-build
   
