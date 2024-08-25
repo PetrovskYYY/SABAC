@@ -132,18 +132,18 @@ POLICY_ALGORITHMS = {
 
 
 POLICY_SET_ALGORITHMS = {
-    'DENY_OVERRIDES': deny_overrides,  # ['DENY_OVERRIDES', 'Deny-overrides', 'deny_overrides', 'PO']
-    'PERMIT_OVERRIDES': permit_overrides,  # ['PERMIT_OVERRIDES', 'Permit-overrides', 'permit_overrides', 'DO']
+    'DENY_OVERRIDES': deny_overrides,  # ['DENY_OVERRIDES', 'Deny-overrides', 'deny_overrides', 'DO']
+    'PERMIT_OVERRIDES': permit_overrides,  # ['PERMIT_OVERRIDES', 'Permit-overrides', 'permit_overrides', 'PO']
     'DENY_UNLESS_PERMIT': deny_unless_permit,  # ['Deny-unless-permit','deny-unless-permit','deny_unless_permit', 'DUP']
     'PERMIT_UNLESS_DENY': permit_unless_deny,  # ['Permit-unless-deny', 'permit_unless_deny', 'PUD']
-    'FIRST_APPLICABLE': first_applicable,  # ['FIRST_APPLICABLE', 'First-applicable', 'first_applicable', 'FU']
+    'FIRST_APPLICABLE': first_applicable,  # ['FIRST_APPLICABLE', 'First-applicable', 'first_applicable', 'FA']
     'ORDERED_DENY_OVERRIDES': ordered_deny_overrides,  # ['ordered_deny_overrides', 'ordered-deny-overrides', 'ODO']
     'ORDERED_PERMIT_OVERRIDES': ordered_permit_overrides,  # 'ordered_permit_overrides','ordered-permit-overrides','OPO'
     'ONLY_ONE_APPLICABLE': only_one_applicable  # 'only-one-applicable', 'only_one_applicable', 'OOA'
 }
 
 
-def get_algorithm_by_name(algorithm_name: str = None, default_algorithm_name='DENY_UNLESS_PERMIT'):
+def get_algorithm_by_name(algorithm_name: str = None, default_algorithm_name=DEFAULT_ALGORITHM_NAME):
     if algorithm_name in POLICY_SET_ALGORITHMS:
         return POLICY_SET_ALGORITHMS[algorithm_name]
     if algorithm_name is not None:

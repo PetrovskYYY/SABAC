@@ -12,6 +12,8 @@ __email__ = "yuriy.petrovskiy@gmail.com"
 
 from enum import Enum, auto
 
+DEFAULT_ALGORITHM_NAME = 'DENY_UNLESS_PERMIT'
+
 
 # Rule effect constants
 class RuleEffect(Enum):
@@ -30,7 +32,7 @@ class RuleEvaluationResult(Enum):
     INDETERMINATE_DP = auto()
 
     @property
-    def shortcut(self) -> str:
+    def shortcut(self) -> str:   # no cover
         if self == self.PERMIT:
             result = 'P'
         elif self == self.DENY:
@@ -88,12 +90,12 @@ class TestFailReasons(Enum):
     BAD_FORMAT = auto()
 
     @property
-    def text(self) -> str:
+    def text(self) -> str:  # no cover
         if self == self.FAILED:
             result = 'Test failed'
         elif self == self.BAD_FORMAT:
             result = 'Bad test format'
         else:
-            raise ValueError(f"Unexpected rule evaluation result value: {self}")
+            raise ValueError(f"Unexpected test fail reason value: {self}")
         return result
 # EOF
