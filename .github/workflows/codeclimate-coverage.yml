@@ -1,15 +1,15 @@
-name: codeclimate-coverage
+name: Codeclimate coverage
 on:
   push:
-    branches:
-      - master
-    tags:
-      - '!*' # Do not execute on tags
+    branches: [ master ]
+#    tags:
+#      - '!*' # Do not execute on tags
     paths:
-      - src/*
-      - test/*
-      - '*.json'
-      - yarn.lock
+      - sabac/*
+      - tests/*
+      - .github/workflows/*
+#      - '*.json'
+#      - yarn.lock
   pull_request:
     paths:
       - '!*.MD'
@@ -38,7 +38,7 @@ jobs:
     - uses: actions/checkout@master
     - uses: actions/setup-node@master
       with:
-        node-version: '12'
+        node-version: '20'
     - run: npm install -g yarn
     - run: yarn install
     - run: yarn build
