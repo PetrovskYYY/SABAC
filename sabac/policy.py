@@ -37,18 +37,18 @@ class Policy(PolicyElement):
     algorithm: Optional[Callable] = None
     rules: List[Rule] = field(default_factory=list)
 
-    def update_from_json(self, json_data):
-        PolicyElement.update_from_json(self, json_data)
-
+    def update_algorithm_from_json(self, json_data):
         if 'algorithm' in json_data:
-            if json_data['algorithm'] in POLICY_ALGORITHMS:
-                self.algorithm = get_algorithm_by_name(json_data['algorithm'])
+            algorithm = json_data['algorithm']
+            if algorithm in POLICY_ALGORITHMS:
+                self.algorithm = get_algorithm_by_name(algorithm)
             else:
-                raise ValueError(f"Unknown algorithm `{json_data['algorithm']}`.")
+                raise ValueError(f"Unknown algorithm `{algorithm}`.")
         else:
             logging.warning(f'No algorithm defined. Using default. : {json_data}')
             self.algorithm = get_algorithm_by_name()
 
+    def update_rules_from_json(self, json_data):
         if 'rules' in json_data:
             if isinstance(json_data['rules'], list) and len(json_data['rules']) > 0:
                 for rule_data in json_data['rules']:
@@ -57,6 +57,11 @@ class Policy(PolicyElement):
                 logging.warning("Policy should have at least one rule.")
         else:
             logging.warning("Policy should have defined rules.")
+
+    def update_from_json(self, json_data):
+        PolicyElement.update_from_json(self, json_data)
+        self.update_algorithm_from_json(json_data)
+        self.update_rules_from_json(json_data)
 
     def to_json(self):
         result = super().to_json()
