@@ -14,7 +14,6 @@ import logging
 from typing import Optional, Any
 
 from .request import Request
-# from .PIP import PIP
 
 
 def calculate_operator_eval(
@@ -92,27 +91,21 @@ def contains_operator_eval(
 ) -> Optional[bool]:
     if attribute_value is None:
         result = False
+
     elif not isinstance(attribute_value, list):
         logging.warning(
-            "Only attributes of type list could be used with operator @contains (got %s for %s)).",
-            attribute_value.__class__.__name__,
-            attribute_name
+            "Only attributes of type list could be used with operator @contains (got %s for %s).", attribute_value.__class__.__name__, attribute_name
         )
         result = False
+
     elif isinstance(operand, list):
-        # If we have a list of values as an argument we check each of them
-        for item in operand:
-            if item in attribute_value:
-                return True
-        # If none matches
-        result = False
+        result = any(item in attribute_value for item in operand)
+
     elif isinstance(operand, dict):
-        # Attribute value should be calculated first
         calculated_attribute_value = policy_information_point.evaluate_attribute_value(operand, request)
 
         if isinstance(calculated_attribute_value, list):
-            intersection = list(set(calculated_attribute_value) & set(attribute_value))
-            result = len(intersection) > 0  # if lists intersect then value is true
+            result = any(item in attribute_value for item in calculated_attribute_value)
         else:
             result = calculated_attribute_value in attribute_value
     else:
