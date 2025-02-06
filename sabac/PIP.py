@@ -15,6 +15,7 @@ __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import logging
+import uuid
 from typing import List, Optional, Any
 
 from .attribute_value_evaluators import attribute_value_evaluators
@@ -48,6 +49,12 @@ class PIP:
             # logging.debug(f"Evaluating `{attribute_value['@']}`...")
             # Extracting attribute value from context using attribute name
             result = self.get_attribute_value(attribute_value['@'], request)
+        elif '@UUID' in attribute_value:
+            # Extracting attribute value from context using attribute name
+            try:
+                result = uuid.UUID(attribute_value['@UUID'])
+            except:
+                result = None
         else:
             result = attribute_value
             # logging.warning("Unknown operator '%s'." % attribute_value)

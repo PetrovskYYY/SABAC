@@ -11,6 +11,7 @@ __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import logging
+import uuid
 from typing import Optional, Any
 
 from .request import Request
@@ -122,7 +123,16 @@ def contained_in_operator_eval(
 ) -> Optional[bool]:
     result = None
     if isinstance(operand, list):
-        result = attribute_value in operand
+        if attribute_value in operand:
+            return True
+
+        for operand_item in operand:
+            if isinstance(operand_item, dict):
+                calculated_operand_item_value = policy_information_point.evaluate_attribute_value(operand_item, request)
+                if calculated_operand_item_value ==attribute_value:
+                    return True
+
+        return False
     elif isinstance(operand, dict):
         calculated_value = policy_information_point.evaluate_attribute_value(operand, request)
         if isinstance(calculated_value, list):
@@ -143,11 +153,32 @@ def contained_in_operator_eval(
     return result
 
 
+def uuid_operator_eval(
+        policy_information_point,
+        attribute_name: str,
+        attribute_value: Any,
+        operand: Any,
+        request: Request
+) -> Optional[bool]:
+    result = None
+    if isinstance(operand, str):
+        extracted_attribute_value = policy_information_point.get_attribute_value(operand, request)
+        result = uuid.UUID(operand)
+    else:  # pragma: no cover
+        logging.warning(
+            "Only attributes of type string could be used with operator @UUID (%s given for %s).",
+            operand.__class__.__name__,
+            attribute_name
+        )
+    return result
+
+
 attribute_value_evaluators = {
     '@': calculate_operator_eval,
     '==': equals_operator_eval,
     '!=': not_equals_operator_eval,
     '@contains': contains_operator_eval,
     '@in': contained_in_operator_eval,
+    '@UUID': uuid_operator_eval,
 }
 # EOF
