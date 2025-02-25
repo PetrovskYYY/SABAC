@@ -144,12 +144,13 @@ class PIP:
         result = None
         if attribute_name in request.attributes:
             result = request.attributes[attribute_name]
-        elif isinstance(attribute_fetch_stack, list):
-            if attribute_name in attribute_fetch_stack:
-                logging.warning(
-                    f"Circular dependency found in attribute call stack "
-                    f"while fetching attribute '{attribute_name}': {attribute_fetch_stack}"
-                )
+        # FixMe: Restore loop checking
+        # elif isinstance(attribute_fetch_stack, list):
+        #     if attribute_name in attribute_fetch_stack:
+        #         logging.warning(
+        #             f"Circular dependency found in attribute call stack "
+        #             f"while fetching attribute '{attribute_name}': {attribute_fetch_stack}"
+        #         )
         # Attribute is absent in context
         elif attribute_name not in self._providers_by_provided_attribute:
             # There is no direct match for this attribute - will try to resolve
