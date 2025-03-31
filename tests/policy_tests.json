@@ -28,5 +28,29 @@
       }
     },
     "result": "Permit"
+  },
+  {
+    "description": "User 2 is denied to edit user with id 1",
+    "context": {
+      "subject": {"id": 2},
+      "action": "update",
+      "resource": {
+        "type": "user",
+        "id": 1
+      }
+    },
+    "result": "Deny"
+  },
+  {
+    "description": "User 2 is denied to edit user with id 3",
+    "context": {
+      "subject": {"id": 2},
+      "action": "update",
+      "resource": {
+        "type": "user",
+        "id": 2
+      }
+    },
+    "result": "Permit"
   }
 ]

@@ -88,6 +88,15 @@
           "effect": "PERMIT"
         },
         {
+          "description": "User id denied to edit certain users",
+          "target": {
+            "resource.type": "user",
+            "action": "update",
+            "resource.id": {"@not": {"@in": [2]}}
+          },
+          "effect": "DENY"
+        },
+        {
           "description": "User  can edit, or erase_personal_data his/her own profile. Action should be logged (if possible).",
           "target": {
             "resource.type": "user",

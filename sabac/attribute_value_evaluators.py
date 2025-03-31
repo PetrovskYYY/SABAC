@@ -172,6 +172,23 @@ def uuid_operator_eval(
         )
     return result
 
+# "resource.id": {"@not": {"@in": [1]}}
+def not_operator_eval(
+        policy_information_point,
+        attribute_name: str,  # "resource.id"
+        attribute_value: Any,  # 3
+        operand: Any,  # {"@in": [1]}
+        request: Request
+) -> Optional[bool]:
+    result = None
+    if isinstance(operand, dict):
+        calculated_operand_value = policy_information_point.evaluate(attribute_name, operand, request)
+        result = not calculated_operand_value
+        # print(f"{attribute_name}({attribute_value}): not {operand}({calculated_operand_value}) = {result} | {request}")
+    else:
+        logging.warning(f"Expression '{operand} ({attribute_value})' is invalid.")
+    return result
+
 
 attribute_value_evaluators = {
     '@': calculate_operator_eval,
@@ -180,5 +197,6 @@ attribute_value_evaluators = {
     '@contains': contains_operator_eval,
     '@in': contained_in_operator_eval,
     '@UUID': uuid_operator_eval,
+    '@not': not_operator_eval,
 }
 # EOF
