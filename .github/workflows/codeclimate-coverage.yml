@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         platform: [ ubuntu-22.04 ]
-        python-version: [3.7, 3.10, 3.11, 3.13]
+        python-version: [3.7,3.11, 3.13]
     name: test/python ${{ matrix.node }}/${{ matrix.platform }}
     runs-on: ${{ matrix.platform }}
     steps:
