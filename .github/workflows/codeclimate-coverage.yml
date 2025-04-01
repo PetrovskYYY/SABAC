@@ -19,8 +19,8 @@ jobs:
       CC_TEST_REPORTER_ID: 4c03ea3ecb91b7fcc116daf06beb8375bb23613b620ba5f695737895cd13f482
     strategy:
       matrix:
-        platform: [ ubuntu-latest ]
-        python-version: [3.6.8, 3.10.16, 3.11.11, 3.13.2, 3.14.0-alpha.6]
+        platform: [ ubuntu-22.04 ]
+        python-version: [3.7, 3.10, 3.11, 3.13, 3.14]
     name: test/python ${{ matrix.node }}/${{ matrix.platform }}
     runs-on: ${{ matrix.platform }}
     steps:
