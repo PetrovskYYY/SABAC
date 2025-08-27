@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# TODO Add file description
 """
-
+Basic example of SABAC usage
 """
 __author__ = "Yuriy Petrovskiy"
-__copyright__ = "Copyright 2021, Exam backend"
+__copyright__ = "Copyright 2021, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
 __maintainer__ = "Yuriy Petrovskiy"
