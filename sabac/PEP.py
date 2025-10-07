@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Policy Enforcement Point
-Usually instance should be located in application core, unlike other classes from this package.
+Usually instance should be located in the application core, unlike other classes from this package.
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
@@ -24,7 +24,7 @@ class PEP:
     """
     Policy Enforcement Point
     """
-    def __init__(self, pdp_instance, pep_type=PolicyEnforcementPointType.DENY_BIASED):
+    def __init__(self, pdp_instance, pep_type: PolicyEnforcementPointType = PolicyEnforcementPointType.DENY_BIASED):
         self.PDP = pdp_instance
         self.type = pep_type
 
@@ -58,6 +58,8 @@ class PEP:
                     return True
                 else:  # pragma: no cover
                     raise ValueError('Unexpected PEP type: %s.' % self.type)
+            else:  # pragma: no cover
+                raise ValueError(f'Unexpected PDP evaluation result decision type: {result.decision}.')
         else:  # pragma: no cover
             raise ValueError('Unexpected PDP evaluation result: %s.' % result)
 
@@ -65,17 +67,18 @@ class PEP:
         """
         Policy Enforcement Point evaluation.
         :param context: Policy context
-        :param return_policy_id_list: Should request result contain list of policies that were used
-            during making decision
+        :param return_policy_id_list: Should request result contain a list of policies that were used
+            during making the decision
         :param debug: Debug output
         :return:
-            True if policy evaluation result is permit,
+            True if a policy evaluation result is permit,
             False if deny
         """
         result = self.get_result(context, return_policy_id_list, debug)
         return self.evaluate_result(result)
 
-    def parse_expected_test_result(self,test: dict):
+    @staticmethod
+    def parse_expected_test_result(test: dict):
         result = True
         if 'result' in test:
             if test['result'] in PERMIT_SHORTCUTS:
@@ -91,7 +94,8 @@ class PEP:
 
     def run_tests(self, tests:List[Dict]) -> List:
         """
-        :param tests: List of tests in the following  format:
+        :return:
+        :param tests: List of tests in the following format:
                 {
                     "description": "Unauthorized users should be able to access authorization",
                     "context": {
@@ -104,6 +108,7 @@ class PEP:
         """
         result = []
         for test in tests:
+            expected_result = None
             try:
                 expected_result = self.parse_expected_test_result(test)
             except TestFailedException as e:

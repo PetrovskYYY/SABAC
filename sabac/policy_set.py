@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# TODO Add file description
 """
 Policy set class
 
@@ -78,7 +77,7 @@ class PolicySet(Policy):
                 if self.algorithm is not None:
                     result, is_final = self.algorithm(result, item_result)
                     if is_final:
-                        # It is final result - returning result without further processing
+                        # It is a final result - returning result without further processing
                         break
 
         if result is None:

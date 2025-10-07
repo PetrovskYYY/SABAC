@@ -78,13 +78,13 @@ class Policy(PolicyElement):
         if not self.check_target(request):
             return Response(request, decision=RESULT_NOT_APPLICABLE)
 
-        # If we reached this - target is matched with context
+        # If we reached this - the target is matched with context
         response = None
         for rule in self.rules:
             element_result = rule.evaluate(request)
             response, is_final = self.algorithm(old_response=response, new_response=element_result)
             if is_final:
-                # It is final result - skipping the rest
+                # It is a final result - skipping the rest
                 break
 
         if request.return_policy_id_list and response.decision != RESULT_NOT_APPLICABLE:

@@ -33,8 +33,8 @@ def deny_unless_permit(old_response, new_response):
     Returns DENY in all cases except explicit permit.
     In case of permit decision considered final
     Combines Old value with new value
-    :param old_response: Response of previous evaluation if exists (may be None)
-    :param new_response: Response object to combine with te previous response
+    :param old_response: Response of previous evaluation if exists (maybe None)
+    :param new_response: Response object to combine with the previous response
     :return: Tuple:
         [0] Response object
         [1] Is decision final (True or False)
@@ -54,11 +54,12 @@ def deny_unless_permit(old_response, new_response):
         # Making object copy to avoid source object modification
         result = new_response.copy()
 
-        # Adding advices, obligations and used policies to current response
+        # Adding advices, obligations and used policies to the current response
         result.join_data(old_response, prepend=True)
         if new_response.decision == RESULT_PERMIT:
             return result, True
         elif new_response.decision in [
+            RESULT_INDETERMINATE,
             RESULT_DENY,
             RESULT_NOT_APPLICABLE,
             RESULT_INDETERMINATE_D,
@@ -73,11 +74,11 @@ def deny_unless_permit(old_response, new_response):
 
 def permit_unless_deny(old_response, new_response) -> Tuple[Response, bool]:
     """
-    Returns PERMIT in all cases except explicit deny.
-    In case of deny decision considered final
+    Returns PERMIT in all cases except explicit denying.
+    In case of the "deny" decision considered final
     Combines Old value with new value
-    :param old_response: Response of previous evaluation if exists (may be None)
-    :param new_response: Response object to combine with te previous response
+    :param old_response: Response of previous evaluation if exists (maybe None)
+    :param new_response: Response object to combine with the previous response
     :return: Tuple:
         [0] Response object
         [1] Is decision final (True or False)
@@ -85,11 +86,12 @@ def permit_unless_deny(old_response, new_response) -> Tuple[Response, bool]:
     # Making object copy to avoid source object modification
     result = new_response.copy()
 
-    # Adding advices, obligations and used policies to current response
+    # Adding advices, obligations and used policies to the current response
     result.join_data(old_response, prepend=True)
     if new_response.decision == RESULT_DENY:
         return result, True
     elif new_response.decision in [
+        RESULT_INDETERMINATE,
         RESULT_PERMIT,
         RESULT_NOT_APPLICABLE,
         RESULT_INDETERMINATE_D,

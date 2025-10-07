@@ -84,7 +84,7 @@ UNDETERMINED_RESULTS = [
 ]
 
 
-# Reasons of test failure:
+# Reasons for test failure:
 class TestFailReasons(Enum):
     FAILED = auto()
     BAD_FORMAT = auto()

@@ -10,11 +10,17 @@ __license__ = "LGPL"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
+from dataclasses import dataclass
+from typing import Optional, List
 
+
+@dataclass
 class InformationProvider:
     """
-    Base class for information providers
+        Base class for information providers
     """
+    provided_attributes: Optional[List] = None
+
     def __init__(self):
         self.provided_attributes = None
 

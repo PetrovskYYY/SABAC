@@ -13,7 +13,7 @@ __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 from .PIP import PIP, InformationProvider
-from .PEP import DenyBiasedPEP
+from .PEP import DenyBiasedPEP, PermitBiasedPEP, BasePEP, PEP
 from .PDP import PDP
 from .PAP import PAP, FilePAP
 from .request import Request

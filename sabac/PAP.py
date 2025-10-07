@@ -10,16 +10,18 @@ __license__ = "LGPL"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
-# Standard library imports
 import json
-# Local source imports
 from dataclasses import dataclass
+from typing import Optional
 
 from .algorithm import deny_unless_permit
 from .policy_set import PolicySet
 
 
+@dataclass(init=False)
 class PAP:
+    root_policy_set: Optional[PolicySet] = None
+
     def __init__(self, algorithm=deny_unless_permit):
         self.root_policy_set = PolicySet(algorithm=algorithm)  # Policy and policy sets are collected here
 
@@ -30,7 +32,11 @@ class PAP:
         raise NotImplementedError("Base PAP class abstract reload method called.")
 
 
+@dataclass(init=False)
 class FilePAP(PAP):
+    file_name: Optional[str] = None
+    encoding: str = 'UTF-8'
+
     def __init__(self, file_name, algorithm=deny_unless_permit, encoding='UTF-8'):
         PAP.__init__(self, algorithm=algorithm)
         self.load(file_name, encoding)

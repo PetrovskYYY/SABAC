@@ -76,7 +76,7 @@ class PolicyElement:
 
     def check_target(self, request):
         """
-        Checks if target is applicable
+        Checks if the target is applicable
         :param request:
         :return:
             True - if target matches context
@@ -103,8 +103,8 @@ class PolicyElement:
             True - criteria matches with context
             False - criteria NOT matches with context
         Attributes can be of 3 subtypes:
-        - subject - attributes related to subject that trying to get access
-        - resource - attribute related to resource that is to be accessed
+        - subject - attributes related to the subject that is trying to get access
+        - resource - attribute related to the resource that is to be accessed
         - action - attributes related to action that is to be done
         """
         result = True
@@ -114,7 +114,7 @@ class PolicyElement:
                 # Key is NOT in context
                 # Requesting attribute value from PDP/PIP
                 attribute_value = request.PDP.PIP.get_attribute_value(policy_key, request)
-                # Keeping value in request because it could be requested by other policy elements later
+                # Keeping value in a request because it could be requested by other policy elements later
                 request.attributes[policy_key] = attribute_value
 
             if isinstance(policy_constraint, dict):

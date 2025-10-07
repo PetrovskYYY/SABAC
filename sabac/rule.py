@@ -30,7 +30,7 @@ from .request import Request
 
 @dataclass(init=False)
 class Rule(PolicyElement):
-    effect: Optional[str] = None  # Allow or deny
+    effect: RuleEvaluationResult = RuleEvaluationResult.INDETERMINATE
     condition: Optional[dict] = None
 
     def __init__(self, json_data=None):
@@ -59,8 +59,9 @@ class Rule(PolicyElement):
         if 'condition' in json_data:
             self.condition = json_data['condition']
 
-    def get_conditioned_decision(self, request: Request):
+    def get_conditioned_decision(self, request: Request) -> RuleEvaluationResult:
         result = RuleEvaluationResult.INDETERMINATE
+        condition_result = None
         try:
             condition_result = self.context_match(self.condition, request)
         except Exception as e:
@@ -76,14 +77,18 @@ class Rule(PolicyElement):
                 logging.error("Incorrect rule effect value: '%s'", self.effect)
                 raise ValueError("Incorrect rule effect value")
 
-        if condition_result is True:
-            result = self.effect
-        elif condition_result is False:
-            result = RESULT_NOT_APPLICABLE
-        else:  # pragma: no cover
+            return result
+
+        if not isinstance(condition_result, bool):  # pragma: no cover
             raise ValueError(
                 f"Invalid condition evaluation result: ({condition_result.__class__.__name__}){condition_result}"
             )
+
+        if condition_result:
+            result = self.effect
+        elif condition_result:
+            result = RESULT_NOT_APPLICABLE
+
         return result
 
     def evaluate(self, request: Request) -> Response:

@@ -15,11 +15,11 @@ from typing import Any, List
 # def get_object_by_path(root_object, path_parts, prefix=None):
 #     """
 #     Returns object using provided path and root object.
-#     Functions treats dict keys and class properties as path parts
+#     Functions treat dict keys and class properties as path parts
 #     :param root_object: dict or class
 #     :param path_parts: list of strings
-#     :param prefix: prefix for path (used internally for recursion)
-#     :return: Value of object that if found by given path or None if path resolution failed.
+#     :param prefix: prefix for a path (used internally for recursion)
+#     :return: Value of an object that if found by a given path or None if path resolution failed.
 #     """
 #     sub_object = None
 #     if isinstance(root_object, dict) and path_parts[0] in root_object:
@@ -58,10 +58,10 @@ from typing import Any, List
 
 def get_object_by_path(root_object: Any, path_parts: List[str]) -> Any:
     """
-    Returns object using provided path and root object.
-    :param root_object: dict or class
-    :param path_parts: list of strings
-    :return: Value of object that if found by given path or None if path resolution failed.
+    Returns an object using the provided path and root object.
+    :param root_object: Dict or class
+    :param path_parts: List of strings
+    :return: Value of an object that if found by a given path or None if path resolution failed.
     """
     obj = root_object
     for part in path_parts:

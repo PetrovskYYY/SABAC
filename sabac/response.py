@@ -12,23 +12,30 @@ __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import copy
+from dataclasses import dataclass, field
+from typing import Dict, Any, List
 
 from .constants import *
 
-
+@dataclass
 class Response:
+    request: Any = None
+    decision: RuleEvaluationResult = RuleEvaluationResult.NOT_APPLICABLE
+    obligations: List = field(default_factory=list)
+    advices: List = field(default_factory=list)
+    polices: List = field(default_factory=list)
 
-    def __init__(self, request, decision=RESULT_NOT_APPLICABLE):
+    def __init__(self, request, decision: RuleEvaluationResult = RuleEvaluationResult.NOT_APPLICABLE):
         self.request = request
         self.decision = decision
         # Obligations to execute
         self.obligations = []
         # Advices to execute
         self.advices = []
-        # Policies that were involved in decision
+        # Policies that were involved in the decision
         self.polices = []
 
-    def to_json(self):
+    def to_json(self) -> Dict[str, Any]:
         result = {
             'decision': self.decision,
         }
@@ -45,7 +52,7 @@ class Response:
         return result
 
     def copy(self):
-        new_copy = Response(self.request)  # Adding reference to request object
+        new_copy = Response(self.request)  # Adding reference to a request object
         new_copy.decision = self.decision
         new_copy.obligations = copy.deepcopy(self.obligations)
         new_copy.advices = copy.deepcopy(self.advices)
@@ -54,11 +61,11 @@ class Response:
 
     def join_data(self, other_request, prepend=False):
         """
-        Joins request data (obligations, advices, used_policy_list) with other request.
-        :param other_request: Request object to join with
-        :param prepend: Add other object data before data of current object
+        Joins request data (obligations, advices, used_policy_list) with another request.
+        :param other_request: Request the object to join with
+        :param prepend: Add other object data before data of the current object
         """
-        if prepend is True:
+        if prepend:
             self.obligations = other_request.obligations + self.obligations
             self.advices = other_request.advices + self.advices
             self.polices = other_request.polices + self.polices

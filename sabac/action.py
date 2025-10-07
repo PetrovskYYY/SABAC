@@ -63,10 +63,9 @@ class Action:
 
 class Obligation(Action):
     """
-        According to standard http://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html#_Toc325047195
-        obligation should be executed if PEP understands and it can and will discharge those obligations
-        So if obligation is set and policy evaluation result is matched with required result it is added to result.
-
+        According to standard, https://docs.oasis-open.org/xacml/3.0/xacml-3.0-core-spec-os-en.html#_Toc325047195
+        obligation should be executed if PEP understands, and it can and will discharge those obligations
+        So if obligation is set and a policy evaluation result is matched with a required result, it is added to the result.
     """
     pass
 

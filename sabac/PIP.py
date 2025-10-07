@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Policy Information Point
-Responsible for providing information that was not provided in original request.
+Responsible for providing information that was not provided in the original request.
 Information could be gained from:
 - environment
 - existing request attributes
@@ -50,7 +50,7 @@ class PIP:
             # Extracting attribute value from context using attribute name
             result = self.get_attribute_value(attribute_value['@'], request)
         elif '@UUID' in attribute_value:
-            # Extracting attribute value from context using attribute name
+            # Extracting attribute value from context using the attribute name
             try:
                 result = uuid.UUID(attribute_value['@UUID'])
             except:
@@ -78,7 +78,7 @@ class PIP:
         """
         Evaluates the expression.
         it compares context attribute_value (left side of the expression/dict item key) to the statement
-        in the dict value. If dict item value is also a dict more specialized evaluators are used.
+        in the dict value. If a dict item value is also a dict, more specialized evaluators are used.
 
         May raise ValueError
         """
@@ -87,7 +87,7 @@ class PIP:
         # TODO: Cache value
 
         if not isinstance(attribute_value, dict):
-            # If attribute value is not evaluable we can compare them directly
+            # If an attribute value is not evaluable, we can compare them directly
             result = context_attribute_value == attribute_value
 
         elif len(attribute_value) != 1:
@@ -133,11 +133,12 @@ class PIP:
         attribute_fetch_stack: Optional[List[str]] = None
     ) -> Any:
         """
-        Fetches attribute value by given attribute name
-        :param attribute_name: Name of an attribute
+        Fetches attribute value by a given attribute name
+
+        :param attribute_name:  of an attribute
         :param request: SABAC request object - used for querying sub attributes
         :param attribute_fetch_stack: Stack of attribute names (to prevent the recursion)
-        :return: found attribute value of None if attribute not available
+        :return: found attribute value of None if the attribute was not available
         (or error occurred during attribute value resolution)
         """
         # Avoiding search for known attributes
@@ -169,7 +170,7 @@ class PIP:
                 # Fetching all required attributes first
                 for required_attribute in provider.required_attributes:
                     if required_attribute not in request.attributes:
-                        # Searching for required attribute
+                        # Searching for the required attribute
                         new_fetch_stack = self._new_attribute_fetch_stack(attribute_name, attribute_fetch_stack)
                         request.attributes[required_attribute] = self.fetch_attribute(
                             required_attribute,
