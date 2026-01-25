@@ -109,7 +109,7 @@ def test_pep3(pdp_instance):
 
 def test_pep4(pdp_instance):
     """
-    User may view own properties
+    User may view their own properties
     """
     context = {
         'resource': {
@@ -344,4 +344,37 @@ def test_tests_from_file(pdp_instance):
     tests_result = test_pep.run_tests(test_json_data)
 
     assert tests_result == []
+
+def test_sub_value_evaluation(pdp_instance):
+    test_pep = DenyBiasedPEP(pdp_instance)
+
+    documents = [
+        {
+            'id': 21
+        },
+        {
+            'id': 22
+        },
+        {
+            'id': 23
+        },
+    ]
+
+    permit = test_pep.evaluate({
+        'resource': {
+            'type': 'EmploymentListNodeInstance',
+            'id': 1,
+            'document': documents[0]
+        },
+        'action': 'list',
+        'subject':{
+            'id': 5,
+            'person':{
+                'employments':{
+                    'departments': documents
+                }
+            }
+        }
+    }, True, debug=True)
+    assert permit
 # EOF

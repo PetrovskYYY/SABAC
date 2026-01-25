@@ -94,9 +94,9 @@ class Rule(PolicyElement):
     def evaluate(self, request: Request) -> Response:
         response = Response(request, decision=RESULT_NOT_APPLICABLE)
 
+        # Checking target matches request
         if self.check_target(request) is False:
             return response
-
 
         if self.condition is not None:
             # Condition is checked after target because it may contain dynamic data on both sides

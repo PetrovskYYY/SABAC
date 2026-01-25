@@ -83,7 +83,7 @@
             "action": "view"
           },
           "condition": {
-            "subject.id": {"==": "resource.id"}
+            "subject.id": {"==": {"@":"resource.id"}}
           },
           "effect": "PERMIT"
         },
@@ -103,7 +103,7 @@
             "action": {"@in": ["update", "erase_personal_data"]}
           },
           "condition": {
-            "resource.id": {"==": "subject.id"}
+            "resource.id": {"==": {"@":"subject.id"}}
           },
           "effect": "PERMIT",
           "advices": [{
@@ -127,6 +127,15 @@
               }
             }
           ]
+        },
+        {
+          "description": "Any identified user can view his/her department employment list",
+          "effect": "PERMIT",
+          "target": {
+            "resource.type": "EmploymentListNodeInstance",
+            "action": "list",
+            "resource.document.id": {"@in": {"@": "subject.person.employments.departments.id"}}
+          }
         }
       ]
     },

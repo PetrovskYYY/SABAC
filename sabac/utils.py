@@ -64,13 +64,21 @@ def get_object_by_path(root_object: Any, path_parts: List[str]) -> Any:
     :return: Value of an object that if found by a given path or None if path resolution failed.
     """
     obj = root_object
-    for part in path_parts:
+    for index, part in enumerate(path_parts):
         try:
             obj = getattr(obj, part)
         except AttributeError:
-            try:
-                obj = obj[part]
-            except (TypeError, KeyError):
-                return None
+            if isinstance(obj, list):
+                results = []
+                for item in obj:
+                    result = get_object_by_path(item, path_parts[index:])
+                    if result is not None:
+                        results.append(result)
+                    obj = results
+            else:
+                try:
+                    obj = obj[part]
+                except (TypeError, KeyError):
+                    return None
     return obj
 # EOF

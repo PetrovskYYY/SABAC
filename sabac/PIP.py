@@ -18,7 +18,8 @@ import logging
 import uuid
 from typing import List, Optional, Any
 
-from .attribute_value_evaluators import attribute_value_evaluators
+from .expression_evaluators import expression_evaluators
+from .operator_evaluators import operator_evaluators
 from .information_provider import InformationProvider
 from .request import Request
 from .utils import get_object_by_path
@@ -30,85 +31,112 @@ class PIP:
         self._information_providers = []
         self._providers_by_provided_attribute = {}
 
-    def evaluate_attribute_value(self, attribute_value: Any, request: Request) -> Any:
-        # FixMe: Avoid calculation requests from userspace
-        result = None
-        if len(attribute_value) != 1:
-            logging.warning(
-                'Calculated attributes should have exactly one element, but {element_count} given: {attribute}. '
-                'Request: {request}'.format(
-                    element_count=len(attribute_value),
-                    attribute=attribute_value,
-                    request=request
-                )
-            )
-            import traceback
-            traceback.print_stack()
-
-        elif '@' in attribute_value:
-            # logging.debug(f"Evaluating `{attribute_value['@']}`...")
-            # Extracting attribute value from context using attribute name
-            result = self.get_attribute_value(attribute_value['@'], request)
-        elif '@UUID' in attribute_value:
-            # Extracting attribute value from context using the attribute name
-            try:
-                result = uuid.UUID(attribute_value['@UUID'])
-            except:
-                result = None
+    def evaluate_expression(self, expression: Any, request: Request) -> Any:
+        if isinstance(expression, dict) and len(expression) == 1:
+            # Looks like an expression
+            result = None
+            key = next(iter(expression))
+            if key in expression_evaluators:
+                result = expression_evaluators[key](self, expression[key], request)
+            else:
+                logging.warning(f"Unknown operator '{key}' in expression {expression}.")
+            return result
         else:
-            result = attribute_value
-            # logging.warning("Unknown operator '%s'." % attribute_value)
-            # raise ValueError("Unknown operator '%s'." % attribute_value)
+            # Not an expression - returning as is
+            return expression
 
-        return result
+    # def evaluate_expression(self, attribute_value: Any, request: Request) -> Any:
+    #     # FixMe: Avoid calculation requests from userspace
+    #     result = None
+    #     if len(attribute_value) != 1:
+    #         logging.warning(
+    #             'Calculated attributes should have exactly one element, but {element_count} given: {attribute}. '
+    #             'Request: {request}'.format(
+    #                 element_count=len(attribute_value),
+    #                 attribute=attribute_value,
+    #                 request=request
+    #             )
+    #         )
+    #         import traceback
+    #         traceback.print_stack()
+    #
+    #     elif '@' in attribute_value:
+    #         # logging.debug(f"Evaluating `{attribute_value['@']}`...")
+    #         # Extracting attribute value from context using attribute name
+    #         result = self.get_attribute_value(attribute_value['@'], request)
+    #     elif '@UUID' in attribute_value:
+    #         # Extracting attribute value from context using the attribute name
+    #         try:
+    #             result = uuid.UUID(attribute_value['@UUID'])
+    #         except:
+    #             result = None
+    #     else:
+    #         result = attribute_value
+    #         # logging.warning("Unknown operator '%s'." % attribute_value)
+    #         # raise ValueError("Unknown operator '%s'." % attribute_value)
+    #
+    #     return result
 
     def get_attribute_value(self, attribute_name, request) -> Any:
         attribute_value = self.fetch_attribute(attribute_name, request)
 
-        if isinstance(attribute_value, dict):
-            # Attribute value requires evaluation
-            evaluated_attribute_value = self.evaluate_attribute_value(attribute_value, request)
-            if evaluated_attribute_value is None:
-                logging.warning(f"Found no value while evaluating attribute`{attribute_name}` in request {request}.")
-            attribute_value = evaluated_attribute_value
+        # if isinstance(attribute_value, dict):
+        #     # Attribute value requires evaluation
+        #     evaluated_attribute_value = self.evaluate_expression(attribute_value, request)
+        #     if evaluated_attribute_value is None:
+        #         logging.warning(f"Found no value while evaluating attribute `{attribute_name}` in request {request}.")
+        #     attribute_value = evaluated_attribute_value
 
         return attribute_value
 
-    def evaluate(self, attribute_name, attribute_value, request) -> bool:
+    def evaluate_statement(self, left_part: str, right_part: Any, request: Request) -> bool:
         """
-        Evaluates the expression.
-        it compares context attribute_value (left side of the expression/dict item key) to the statement
-        in the dict value. If a dict item value is also a dict, more specialized evaluators are used.
+        Evaluates the equivalence or operation between the left and right parts in the context of a request.
 
-        May raise ValueError
+        The method retrieves the value of the left_part from the context using the provided request. It then evaluates
+        the equivalence or condition depending on the content or structure of the right_part. The method supports
+        direct comparison or operation-based evaluation depending on whether right_part is a dictionary or not.
+
+        Parameters:
+            left_part (str): Name of the context attribute or key to retrieve its value.
+            right_part (Any): Value or operation to be evaluated against the context attribute value.
+            request (Request): The specific request context from which attribute values are retrieved.
+
+        Returns:
+            bool: The result of the evaluation, where `True` indicates the conditionally evaluated statement is valid
+                  or equivalent; otherwise `False`.
+
+        Raises:
+            ValueError: If `right_part` is a dictionary with more than one element or contains an unknown operation
+                        shortcut.
         """
-        context_attribute_value = self.get_attribute_value(attribute_name, request)
+        context_attribute_value = self.get_attribute_value(left_part, request)
         # result = None
         # TODO: Cache value
 
-        if not isinstance(attribute_value, dict):
+        if not isinstance(right_part, dict):
             # If an attribute value is not evaluable, we can compare them directly
-            result = context_attribute_value == attribute_value
+            result = (context_attribute_value == right_part)
 
-        elif len(attribute_value) != 1:
+        elif len(right_part) != 1:
             raise ValueError('Calculated attributes should have only one element. %d given: %s.' % (
-                len(attribute_value),
-                attribute_value
+                len(right_part),
+                right_part
             ))
         else:
-            operation_shortcut = next(iter(attribute_value))
+            operation_shortcut = next(iter(right_part))
 
-            if operation_shortcut in attribute_value_evaluators:
-                result = attribute_value_evaluators[operation_shortcut](
+            if operation_shortcut in operator_evaluators:
+                result = operator_evaluators[operation_shortcut](
                     policy_information_point=self,
-                    attribute_name=attribute_name,
+                    attribute_name=left_part,
                     attribute_value=context_attribute_value,
-                    operand=attribute_value[operation_shortcut],
+                    operand=right_part[operation_shortcut],
                     request=request
                 )
             else:
-                logging.warning("Unknown operator '%s'." % attribute_value.keys())
-                raise ValueError("Unknown operator '%s'." % attribute_value.keys())
+                logging.warning("Unknown operator '%s'." % right_part.keys())
+                raise ValueError("Unknown operator '%s'." % right_part.keys())
 
         return result
 
@@ -162,9 +190,12 @@ class PIP:
             else:
                 # There is no way to get this attribute
                 logging.warning(
-                    f"No information providers found for attribute '{attribute_name}'. "
-                    f"Request data:{request}."
+                    f"No information providers found for attribute '{attribute_name}'."
+                    f" Request data:{request}."
+                    f" Attribute fetch stack: {attribute_fetch_stack}"
                 )
+                import traceback
+                traceback.print_stack()
         else:
             for provider in self._providers_by_provided_attribute[attribute_name]:
                 # Fetching all required attributes first

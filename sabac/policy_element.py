@@ -119,7 +119,7 @@ class PolicyElement:
 
             if isinstance(policy_constraint, dict):
                 # We have some advanced comparison
-                criteria_value = request.PDP.PIP.evaluate(policy_key, policy_constraint, request)
+                criteria_value = request.PDP.PIP.evaluate_statement(policy_key, policy_constraint, request)
                 if criteria_value is True:
                     continue
                 else:
