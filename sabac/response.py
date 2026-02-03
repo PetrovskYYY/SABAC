@@ -17,6 +17,7 @@ from typing import Dict, Any, List
 
 from .constants import *
 
+
 @dataclass
 class Response:
     request: Any = None
@@ -78,5 +79,19 @@ class Response:
         self.advices.append(advice)
 
     def __repr__(self):
-        return "<Response %s>" % self.to_json()
+        result = f"<Response decision: {self.decision}"
+        if len(self.polices) > 0:
+            result += "\n  Policies: "
+            for policy in self.polices:
+                result += f"\n    {policy}"
+        if len(self.obligations) > 0:
+            result += "\n  Obligations: "
+            for obligation in self.obligations:
+                result += f"\n    {obligation}"
+        if len(self.advices) > 0:
+            result += "\n  Advices: "
+            for advice in self.advices:
+                result += f"\n    {advice}"
+        result += "\n>"
+        return result
 # EOF

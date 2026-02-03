@@ -127,6 +127,7 @@ class PIP:
             operation_shortcut = next(iter(right_part))
 
             if operation_shortcut in operator_evaluators:
+                right_part_value = right_part[operation_shortcut]
                 result = operator_evaluators[operation_shortcut](
                     policy_information_point=self,
                     attribute_name=left_part,
@@ -134,6 +135,7 @@ class PIP:
                     operand=right_part[operation_shortcut],
                     request=request
                 )
+                # logging.debug(f"Evaluated `{left_part}`({context_attribute_value}) {operation_shortcut} `{right_part[operation_shortcut]}`: {result}")
             else:
                 logging.warning("Unknown operator '%s'." % right_part.keys())
                 raise ValueError("Unknown operator '%s'." % right_part.keys())

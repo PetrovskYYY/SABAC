@@ -129,7 +129,15 @@ def contains_operator_eval(
         result = False
 
     elif isinstance(operand, list):
-        result = any(item in attribute_value for item in operand)
+        for operand_item in operand:
+            if isinstance(operand_item, dict) and len(operand_item) == 1:
+                operand_item_value = policy_information_point.evaluate_expression(operand_item, request)
+                if operand_item_value in attribute_value:
+                    return True
+            if operand_item in attribute_value:
+                return True
+        return False
+        # result = any(item in attribute_value for item in operand)
 
     elif isinstance(operand, dict):
         calculated_attribute_value = policy_information_point.evaluate_expression(operand, request)

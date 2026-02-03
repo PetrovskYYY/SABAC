@@ -35,7 +35,7 @@ class PEP:
         request = Request(attributes=context, return_policy_id_list=return_policy_id_list)
         result = self.PDP.evaluate(request)
         if debug:  # pragma: no cover
-            logging.debug("SABAC request: %s, result: %s.", request, result)
+            logging.debug("SABAC request: %s, \nresult: %s.", request, result)
         return result
 
     def evaluate_result(self, result):

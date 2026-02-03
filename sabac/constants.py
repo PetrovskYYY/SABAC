@@ -31,6 +31,13 @@ class RuleEvaluationResult(Enum):
     INDETERMINATE_P = auto()
     INDETERMINATE_DP = auto()
 
+    def __repr__(self):
+        v_repr = self.__class__._value_repr_ or repr
+        return f"<{self._name_}({v_repr(self._value_)})>"
+
+    # def __str__(self):
+    #     return "X%s.%s" % (self.__class__.__name__, self._name_, )
+
     @property
     def shortcut(self) -> str:   # no cover
         if self == self.PERMIT:

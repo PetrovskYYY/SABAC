@@ -20,7 +20,11 @@ class Request:
         self.return_policy_id_list = return_policy_id_list
 
     def __repr__(self):
-        return "<Request %s>" % self.to_json()
+        result = "<Request data:"
+        for key, value in self.attributes.items():
+            result += "\n  %s: %s" % (key, value)
+        result += "\n>"
+        return result
 
     def to_json(self):
         return self.attributes
