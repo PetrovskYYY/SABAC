@@ -74,7 +74,8 @@ def get_object_by_path(root_object: Any, path_parts: List[str]) -> Any:
                     result = get_object_by_path(item, path_parts[index:])
                     if result is not None:
                         results.append(result)
-                    obj = results
+                obj = results
+                break
             else:
                 try:
                     obj = obj[part]

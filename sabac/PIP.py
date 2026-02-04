@@ -37,7 +37,10 @@ class PIP:
             result = None
             key = next(iter(expression))
             if key in expression_evaluators:
-                result = expression_evaluators[key](self, expression[key], request)
+                expression_value = expression[key]
+                # if isinstance(expression_value, dict) and len(expression) == 1:
+                #     expression_value = self.evaluate_expression(expression, request)
+                result = expression_evaluators[key](self, expression_value, request)
             else:
                 logging.warning(f"Unknown operator '{key}' in expression {expression}.")
             return result
