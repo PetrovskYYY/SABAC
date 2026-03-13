@@ -174,7 +174,7 @@ def contained_in_operator_eval(
         calculated_value = policy_information_point.evaluate_expression(operand, request)
         if isinstance(calculated_value, list):
             result = attribute_value in calculated_value
-            logging.warning(f"Expression '{attribute_name}'({attribute_value}): @in ('{operand}'({calculated_value})): {result}")
+            # logging.warning(f"Expression '{attribute_name}'({attribute_value}): @in ('{operand}'({calculated_value})): {result}")
         # elif isinstance(calculated_value, dict) and len(calculated_value) == 1:
         #     # Attribute value is a sub-attribute expression
         #     sub_list = policy_information_point.evaluate_expression(calculated_value, request)
@@ -186,7 +186,7 @@ def contained_in_operator_eval(
         #     else:
         #         result = attribute_value in sub_list
         else:  # pragma: no cover
-            logging.warning(f"Expression '{attribute_name}'({attribute_value}): @in ('{operand}'({calculated_value})): "
+            logging.debug(f"Expression '{attribute_name}'({attribute_value}): @in ('{operand}'({calculated_value})): "
                             f"Operand value is not list.")
     else:
         logging.warning(
