@@ -10,6 +10,7 @@ __license__ = "LGPL"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
+import logging
 from typing import Any, List
 
 # def get_object_by_path(root_object, path_parts, prefix=None):
@@ -82,4 +83,19 @@ def get_object_by_path(root_object: Any, path_parts: List[str]) -> Any:
                 except (TypeError, KeyError):
                     return None
     return obj
+
+def logging_by_level_name(level_name,**kwargs):
+    if level_name == 'DEBUG':
+        return logging.debug(**kwargs)
+    elif level_name == 'INFO':
+        return logging.info(**kwargs)
+    elif level_name == 'WARNING':
+        return logging.warning(**kwargs)
+    elif level_name == 'ERROR':
+        return logging.error(**kwargs)
+    elif level_name == 'CRITICAL':
+        return logging.critical(**kwargs)
+    else:
+        return logging.log(level_name,**kwargs)
+
 # EOF

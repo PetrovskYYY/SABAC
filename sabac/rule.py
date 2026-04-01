@@ -26,12 +26,14 @@ from .constants import *
 from .policy_element import PolicyElement
 from .response import Response
 from .request import Request
+from .utils import logging_by_level_name
 
 
 @dataclass(init=False)
 class Rule(PolicyElement):
     effect: RuleEvaluationResult = RuleEvaluationResult.INDETERMINATE
     condition: Optional[dict] = None
+    debug: Optional[str] = None
 
     def __init__(self, json_data=None):
         super().__init__(json_data=json_data)
@@ -58,6 +60,8 @@ class Rule(PolicyElement):
 
         if 'condition' in json_data:
             self.condition = json_data['condition']
+        if 'debug' in json_data:
+            self.debug = json_data['debug']
 
     def get_conditioned_decision(self, request: Request) -> RuleEvaluationResult:
         result = RuleEvaluationResult.INDETERMINATE
@@ -95,26 +99,25 @@ class Rule(PolicyElement):
         response = Response(request, decision=RESULT_NOT_APPLICABLE)
 
         # Checking target matches request
-        if self.check_target(request) is False:
-            return response
+        if self.check_target(request) is True:
+            if self.condition is not None:
+                # Condition is checked after target because it may contain dynamic data on both sides
+                # and may be more complex to calculate
+                response.decision = self.get_conditioned_decision(request=request)
+            else:
+                response.decision = self.effect
 
-        if self.condition is not None:
-            # Condition is checked after target because it may contain dynamic data on both sides
-            # and may be more complex to calculate
-            response.decision = self.get_conditioned_decision(request=request)
-        else:
-            response.decision = self.effect
+            # Adding obligations and advices if any defined and match result
+            response = self.handle_actions(response)
 
-        # Adding obligations and advices if any defined and match result
-        response = self.handle_actions(response)
-
-        # Recording rule to id list if required
-        if request.return_policy_id_list is True and response.decision != RESULT_NOT_APPLICABLE:
-            response.polices.append({
-                'element': 'rule',
-                'description': self.description if hasattr(self, 'description') else self,
-                'result': response.decision
-            })
-
+            # Recording rule to id list if required
+            if request.return_policy_id_list is True and response.decision != RESULT_NOT_APPLICABLE:
+                response.polices.append({
+                    'element': 'rule',
+                    'description': self.description if hasattr(self, 'description') else self,
+                    'result': response.decision
+                })
+        if self.debug:
+            logging_by_level_name(self.debug,f"Rule evaluation result: {response}")
         return response
 # EOF
