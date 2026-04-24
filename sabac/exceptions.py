@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# TODO Add file description
 """
-
+SABAC custom exceptions
 """
 __author__ = "Yuriy Petrovskiy"
-__copyright__ = "Copyright 2024, PerinatalCare backend"
+__copyright__ = "Copyright 2024, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
 __license__ = ""  # TODO Add licence
 __maintainer__ = "Yuriy Petrovskiy"

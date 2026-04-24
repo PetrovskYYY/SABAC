@@ -64,13 +64,30 @@ class Rule(PolicyElement):
             self.debug = json_data['debug']
 
     def get_conditioned_decision(self, request: Request) -> RuleEvaluationResult:
+        """
+        Determines the decision based on the evaluation of a condition in the context of a request.
+
+        This method evaluates a condition linked to the rule using the request context
+        and returns the outcome of the rule evaluation process. If the condition evaluation
+        fails or results in an invalid state, appropriate default decisions or errors are handled.
+
+        Parameters:
+        request (Request): The request context based on which the condition is evaluated.
+
+        Returns:
+        RuleEvaluationResult: The resulting decision after the rule's condition evaluation.
+
+        Raises:
+        ValueError: Raised if the rule has an invalid effect value or if the condition evaluation
+                    returns an invalid result.
+        """
         result = RuleEvaluationResult.INDETERMINATE
         condition_result = None
         try:
             condition_result = self.context_match(self.condition, request)
         except Exception as e:
             logging.warning(
-                f"Exception occurred while evaluating rule {self} in condition evaluation: {str(e)}"
+                f"Exception occurred while evaluating rule {self} in condition evaluation: ({e.__class__.__name__}){str(e)}"
             )
 
             if self.effect == RuleEffect.PERMIT:
@@ -90,7 +107,7 @@ class Rule(PolicyElement):
 
         if condition_result:
             result = self.effect
-        elif condition_result:
+        else:
             result = RESULT_NOT_APPLICABLE
 
         return result
