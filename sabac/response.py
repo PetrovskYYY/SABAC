@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# TODO Add file description
 """
 ABAC Response class
 """
