@@ -8,25 +8,113 @@ __copyright__ = "Copyright 2020, SABAC"
 __license__ = "LGPL"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
+import asyncio
 import logging
-from typing import Tuple
+from typing import Tuple, Optional, List
 
 from .constants import *
-
-# Rule combining algorithms
-# REF: https://www.axiomatics.com/blog/understanding-xacml-combining-algorithms/
 from .response import Response
 
 
-def deny_overrides(old_value, new_value):
-    raise NotImplementedError()  # pragma: no cover
+def deny_overrides(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
+    """Non-ordered: Evaluate ALL policies (never early exit)."""
+    if old_response is None:
+        return new_response, False
+    combined = new_response.copy()
+    combined.join_data(old_response, prepend=True)
+    decisions = [old_response.decision, new_response.decision]
+    if RESULT_DENY in decisions:
+        combined.decision = RESULT_DENY
+    elif RESULT_INDETERMINATE_DP in decisions:
+        combined.decision = RESULT_INDETERMINATE_DP
+    elif RESULT_INDETERMINATE_D in decisions:
+        combined.decision = RESULT_INDETERMINATE_D
+    elif RESULT_INDETERMINATE_P in decisions:
+        combined.decision = RESULT_INDETERMINATE_P
+    elif RESULT_INDETERMINATE in decisions:
+        combined.decision = RESULT_INDETERMINATE
+    elif RESULT_PERMIT in decisions:
+        combined.decision = RESULT_PERMIT
+    else:
+        combined.decision = RESULT_NOT_APPLICABLE
+    return combined, False  # Never final (evaluate all policies)
 
 
-def permit_overrides(old_value, new_value):
-    raise NotImplementedError()  # pragma: no cover
+async def deny_overrides_async(responses: List[Response]) -> Tuple[Response, bool]:
+    """Non-ordered async: Evaluate all policies concurrently."""
+    if not responses:
+        return Response(None, decision=RESULT_NOT_APPLICABLE), True
+    combined = responses[0].copy()
+    for resp in responses[1:]:
+        combined.join_data(resp, prepend=False)
+    decisions = [r.decision for r in responses]
+    if RESULT_DENY in decisions:
+        combined.decision = RESULT_DENY
+    elif RESULT_INDETERMINATE_DP in decisions:
+        combined.decision = RESULT_INDETERMINATE_DP
+    elif RESULT_INDETERMINATE_D in decisions:
+        combined.decision = RESULT_INDETERMINATE_D
+    elif RESULT_INDETERMINATE_P in decisions:
+        combined.decision = RESULT_INDETERMINATE_P
+    elif RESULT_INDETERMINATE in decisions:
+        combined.decision = RESULT_INDETERMINATE
+    elif RESULT_PERMIT in decisions:
+        combined.decision = RESULT_PERMIT
+    else:
+        combined.decision = RESULT_NOT_APPLICABLE
+    return combined, True
 
 
-def deny_unless_permit(old_response, new_response):
+def permit_overrides(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
+    """Non-ordered: Evaluate ALL policies (never early exit)."""
+    if old_response is None:
+        return new_response, False
+    combined = new_response.copy()
+    combined.join_data(old_response, prepend=True)
+    decisions = [old_response.decision, new_response.decision]
+    if RESULT_PERMIT in decisions:
+        combined.decision = RESULT_PERMIT
+    elif RESULT_INDETERMINATE_DP in decisions:
+        combined.decision = RESULT_INDETERMINATE_DP
+    elif RESULT_INDETERMINATE_P in decisions:
+        combined.decision = RESULT_INDETERMINATE_P
+    elif RESULT_INDETERMINATE_D in decisions:
+        combined.decision = RESULT_INDETERMINATE_D
+    elif RESULT_INDETERMINATE in decisions:
+        combined.decision = RESULT_INDETERMINATE
+    elif RESULT_DENY in decisions:
+        combined.decision = RESULT_DENY
+    else:
+        combined.decision = RESULT_NOT_APPLICABLE
+    return combined, False  # Never final (evaluate all policies)
+
+
+async def permit_overrides_async(responses: List[Response]) -> Tuple[Response, bool]:
+    """Non-ordered async: Evaluate all policies concurrently."""
+    if not responses:
+        return Response(None, decision=RESULT_NOT_APPLICABLE), True
+    combined = responses[0].copy()
+    for resp in responses[1:]:
+        combined.join_data(resp, prepend=False)
+    decisions = [r.decision for r in responses]
+    if RESULT_PERMIT in decisions:
+        combined.decision = RESULT_PERMIT
+    elif RESULT_INDETERMINATE_DP in decisions:
+        combined.decision = RESULT_INDETERMINATE_DP
+    elif RESULT_INDETERMINATE_P in decisions:
+        combined.decision = RESULT_INDETERMINATE_P
+    elif RESULT_INDETERMINATE_D in decisions:
+        combined.decision = RESULT_INDETERMINATE_D
+    elif RESULT_INDETERMINATE in decisions:
+        combined.decision = RESULT_INDETERMINATE
+    elif RESULT_DENY in decisions:
+        combined.decision = RESULT_DENY
+    else:
+        combined.decision = RESULT_NOT_APPLICABLE
+    return combined, True
+
+
+def deny_unless_permit(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
     """
     Returns DENY in all cases except explicit permit.
     In case of permit decision considered final
@@ -37,22 +125,15 @@ def deny_unless_permit(old_response, new_response):
         [0] Response object
         [1] Is decision final (True or False)
     """
-
     if not old_response:
-        # There is no previous value to compare
-        # First value
         if new_response.decision == RESULT_PERMIT:
             return new_response, True
         else:
             return new_response, False
     elif old_response.decision == RESULT_PERMIT:  # pragma: no cover
-        # Strange case - it should not happen
         raise ValueError("deny_unless_permit algorithm with previous permit used again")
     else:
-        # Making object copy to avoid source object modification
         result = new_response.copy()
-
-        # Adding advices, obligations and used policies to the current response
         result.join_data(old_response, prepend=True)
         if new_response.decision == RESULT_PERMIT:
             return result, True
@@ -70,7 +151,7 @@ def deny_unless_permit(old_response, new_response):
             raise ValueError('Incorrect result value: %s' % new_response.decision)
 
 
-def permit_unless_deny(old_response, new_response) -> Tuple[Response, bool]:
+def permit_unless_deny(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
     """
     Returns PERMIT in all cases except explicit denying.
     In case of the "deny" decision considered final
@@ -81,10 +162,7 @@ def permit_unless_deny(old_response, new_response) -> Tuple[Response, bool]:
         [0] Response object
         [1] Is decision final (True or False)
     """
-    # Making object copy to avoid source object modification
     result = new_response.copy()
-
-    # Adding advices, obligations and used policies to the current response
     result.join_data(old_response, prepend=True)
     if new_response.decision == RESULT_DENY:
         return result, True
@@ -102,22 +180,105 @@ def permit_unless_deny(old_response, new_response) -> Tuple[Response, bool]:
         raise ValueError('Incorrect result value: %s' % new_response.decision)
 
 
-def first_applicable(old_value, new_value):
-    raise NotImplementedError()  # pragma: no cover
+def first_applicable(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
+    """Return the first non-NOT_APPLICABLE result as final."""
+    if new_response.decision != RESULT_NOT_APPLICABLE:
+        return new_response, True  # First applicable is final
+    return new_response, False
 
 
-def ordered_deny_overrides(old_value, new_value):
-    raise NotImplementedError()  # pragma: no cover
+def ordered_deny_overrides(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
+    """Ordered: Stop on first DENY (final)."""
+    if old_response and old_response.decision == RESULT_DENY:
+        return old_response, True
+    if new_response.decision == RESULT_DENY:
+        return new_response, True
+    if old_response is None:
+        return new_response, False
+    combined = new_response.copy()
+    combined.join_data(old_response, prepend=True)
+    decisions = [old_response.decision, new_response.decision]
+    if RESULT_DENY in decisions:
+        combined.decision = RESULT_DENY
+    elif RESULT_INDETERMINATE_DP in decisions:
+        combined.decision = RESULT_INDETERMINATE_DP
+    elif RESULT_INDETERMINATE_D in decisions:
+        combined.decision = RESULT_INDETERMINATE_D
+    elif RESULT_INDETERMINATE_P in decisions:
+        combined.decision = RESULT_INDETERMINATE_P
+    elif RESULT_INDETERMINATE in decisions:
+        combined.decision = RESULT_INDETERMINATE
+    elif RESULT_PERMIT in decisions:
+        combined.decision = RESULT_PERMIT
+    else:
+        combined.decision = RESULT_NOT_APPLICABLE
+    return combined, False
 
 
-def ordered_permit_overrides(old_value, new_value):
-    raise NotImplementedError()  # pragma: no cover
+def ordered_permit_overrides(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
+    """Ordered: Stop on first PERMIT (final)."""
+    if old_response and old_response.decision == RESULT_PERMIT:
+        return old_response, True
+    if new_response.decision == RESULT_PERMIT:
+        return new_response, True
+    if old_response is None:
+        return new_response, False
+    combined = new_response.copy()
+    combined.join_data(old_response, prepend=True)
+    decisions = [old_response.decision, new_response.decision]
+    if RESULT_PERMIT in decisions:
+        combined.decision = RESULT_PERMIT
+    elif RESULT_INDETERMINATE_DP in decisions:
+        combined.decision = RESULT_INDETERMINATE_DP
+    elif RESULT_INDETERMINATE_P in decisions:
+        combined.decision = RESULT_INDETERMINATE_P
+    elif RESULT_INDETERMINATE_D in decisions:
+        combined.decision = RESULT_INDETERMINATE_D
+    elif RESULT_INDETERMINATE in decisions:
+        combined.decision = RESULT_INDETERMINATE
+    elif RESULT_DENY in decisions:
+        combined.decision = RESULT_DENY
+    else:
+        combined.decision = RESULT_NOT_APPLICABLE
+    return combined, False
 
 
-# Policy combining algorithms
+def only_one_applicable(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
+    """Return the applicable policy's decision if exactly one policy is applicable.
+    Return INDETERMINATE_DP if >1 applicable (stop early). Return NOT_APPLICABLE if 0 applicable."""
+    if old_response is None:
+        applicable_count = 0
+        applicable_response = None
+    else:
+        applicable_count = getattr(old_response, 'applicable_count', 0)
+        applicable_response = getattr(old_response, 'applicable_response', None)
 
-def only_one_applicable(old_value, new_value):
-    raise NotImplementedError()  # pragma: no cover
+    if new_response.decision != RESULT_NOT_APPLICABLE:
+        applicable_count += 1
+        applicable_response = new_response
+
+    if applicable_count > 1:
+        result = new_response.copy()
+        if old_response:
+            result.join_data(old_response, prepend=True)
+        result.decision = RESULT_INDETERMINATE_DP
+        return result, True  # Early termination
+
+    if old_response:
+        result = new_response.copy()
+        result.join_data(old_response, prepend=True)
+    else:
+        result = new_response.copy()
+
+    result.applicable_count = applicable_count
+    result.applicable_response = applicable_response
+
+    if applicable_count == 1:
+        result.decision = applicable_response.decision
+    else:
+        result.decision = RESULT_NOT_APPLICABLE
+
+    return result, False
 
 
 POLICY_ALGORITHMS = {
@@ -127,19 +288,20 @@ POLICY_ALGORITHMS = {
     'PERMIT_UNLESS_DENY': permit_unless_deny,
     'FIRST_APPLICABLE': first_applicable,
     'ORDERED_DENY_OVERRIDES': ordered_deny_overrides,
-    'ORDERED_PERMIT_OVERRIDES': ordered_permit_overrides
+    'ORDERED_PERMIT_OVERRIDES': ordered_permit_overrides,
+    'ONLY_ONE_APPLICABLE': only_one_applicable
 }
 
 
 POLICY_SET_ALGORITHMS = {
-    'DENY_OVERRIDES': deny_overrides,  # ['DENY_OVERRIDES', 'Deny-overrides', 'deny_overrides', 'DO']
-    'PERMIT_OVERRIDES': permit_overrides,  # ['PERMIT_OVERRIDES', 'Permit-overrides', 'permit_overrides', 'PO']
-    'DENY_UNLESS_PERMIT': deny_unless_permit,  # ['Deny-unless-permit','deny-unless-permit','deny_unless_permit', 'DUP']
-    'PERMIT_UNLESS_DENY': permit_unless_deny,  # ['Permit-unless-deny', 'permit_unless_deny', 'PUD']
-    'FIRST_APPLICABLE': first_applicable,  # ['FIRST_APPLICABLE', 'First-applicable', 'first_applicable', 'FA']
-    'ORDERED_DENY_OVERRIDES': ordered_deny_overrides,  # ['ordered_deny_overrides', 'ordered-deny-overrides', 'ODO']
-    'ORDERED_PERMIT_OVERRIDES': ordered_permit_overrides,  # 'ordered_permit_overrides','ordered-permit-overrides','OPO'
-    'ONLY_ONE_APPLICABLE': only_one_applicable  # 'only-one-applicable', 'only_one_applicable', 'OOA'
+    'DENY_OVERRIDES': deny_overrides,
+    'PERMIT_OVERRIDES': permit_overrides,
+    'DENY_UNLESS_PERMIT': deny_unless_permit,
+    'PERMIT_UNLESS_DENY': permit_unless_deny,
+    'FIRST_APPLICABLE': first_applicable,
+    'ORDERED_DENY_OVERRIDES': ordered_deny_overrides,
+    'ORDERED_PERMIT_OVERRIDES': ordered_permit_overrides,
+    'ONLY_ONE_APPLICABLE': only_one_applicable
 }
 
 

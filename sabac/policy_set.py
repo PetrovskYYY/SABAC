@@ -22,6 +22,7 @@ __copyright__ = "Copyright 2020, SABAC"
 __license__ = "LGPL"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
+import asyncio
 import logging
 from dataclasses import dataclass, field
 from typing import Optional, Union, List
@@ -29,7 +30,7 @@ from typing import Optional, Union, List
 from .constants import RESULT_NOT_APPLICABLE
 from .policy import Policy
 from .policy_element import PolicyElement
-from .algorithm import get_algorithm_by_name, POLICY_SET_ALGORITHMS
+from .algorithm import get_algorithm_by_name, POLICY_SET_ALGORITHMS, deny_overrides, permit_overrides
 from .response import Response
 
 
@@ -81,6 +82,45 @@ class PolicySet(Policy):
         if result is None:
             result = Response(request, decision=RESULT_NOT_APPLICABLE)
         return result
+
+    async def evaluate_async(self, request) -> Response:
+        """Async evaluation supporting concurrent policy evaluation."""
+        if not self.check_target(request):
+            return Response(request, decision=RESULT_NOT_APPLICABLE)
+
+        # Non-ordered algorithms: evaluate all items concurrently
+        if self.algorithm in [deny_overrides, permit_overrides]:
+            tasks = []
+            for item in self.items:
+                if hasattr(item, 'evaluate_async'):
+                    tasks.append(item.evaluate_async(request))
+                else:
+                    # Wrap sync evaluate in a coroutine
+                    tasks.append(asyncio.coroutine(item.evaluate)(request))
+
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
+            valid_responses = [r for r in responses if isinstance(r, Response)]
+
+            if not valid_responses:
+                return Response(request, decision=RESULT_NOT_APPLICABLE)
+
+            if self.algorithm == deny_overrides:
+                from .algorithm import deny_overrides_async
+                result, _ = await deny_overrides_async(valid_responses)
+            else:
+                from .algorithm import permit_overrides_async
+                result, _ = await permit_overrides_async(valid_responses)
+            return result
+        else:
+            # Ordered: sequential with early termination
+            result = None
+            for item in self.items:
+                item_result = item.evaluate(request)
+                if self.algorithm is not None:
+                    result, is_final = self.algorithm(result, item_result)
+                    if is_final:
+                        break
+            return result if result else Response(request, decision=RESULT_NOT_APPLICABLE)
 
     @property
     def item_count(self):

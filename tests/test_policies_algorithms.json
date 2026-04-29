@@ -1,0 +1,90 @@
+{
+  "algorithm": "DENY_UNLESS_PERMIT",
+  "description": "Algorithm test policies",
+  "items": [
+    {
+      "description": "Deny Overrides Test Policy",
+      "algorithm": "DENY_OVERRIDES",
+      "rules": [
+        {
+          "effect": "PERMIT",
+          "target": {"action": "read"}
+        },
+        {
+          "effect": "DENY",
+          "target": {"action": "write"}
+        }
+      ]
+    },
+    {
+      "description": "Permit Overrides Test Policy",
+      "algorithm": "PERMIT_OVERRIDES",
+      "rules": [
+        {
+          "effect": "DENY",
+          "target": {"action": "read"}
+        },
+        {
+          "effect": "PERMIT",
+          "target": {"action": "read"}
+        }
+      ]
+    },
+    {
+      "description": "First Applicable Test Policy",
+      "algorithm": "FIRST_APPLICABLE",
+      "rules": [
+        {
+          "effect": "PERMIT",
+          "target": {"action": "view"}
+        },
+        {
+          "effect": "DENY",
+          "target": {"action": "view"}
+        }
+      ]
+    },
+    {
+      "description": "Only One Applicable Test Policy",
+      "algorithm": "ONLY_ONE_APPLICABLE",
+      "rules": [
+        {
+          "effect": "PERMIT",
+          "target": {"action": "list"}
+        },
+        {
+          "effect": "DENY",
+          "target": {"action": "delete"}
+        }
+      ]
+    },
+    {
+      "description": "Ordered Deny Overrides Test Policy",
+      "algorithm": "ORDERED_DENY_OVERRIDES",
+      "rules": [
+        {
+          "effect": "PERMIT",
+          "target": {"action": "execute"}
+        },
+        {
+          "effect": "DENY",
+          "target": {"action": "execute"}
+        }
+      ]
+    },
+    {
+      "description": "Ordered Permit Overrides Test Policy",
+      "algorithm": "ORDERED_PERMIT_OVERRIDES",
+      "rules": [
+        {
+          "effect": "DENY",
+          "target": {"action": "execute"}
+        },
+        {
+          "effect": "PERMIT",
+          "target": {"action": "execute"}
+        }
+      ]
+    }
+  ]
+}

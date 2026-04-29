@@ -21,6 +21,7 @@ __copyright__ = "Copyright 2020, SABAC"
 __license__ = "LGPL"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
+import asyncio
 from dataclasses import dataclass, field
 from typing import Optional, List, Callable
 
@@ -93,4 +94,35 @@ class Policy(PolicyElement):
             })
 
         return response
+
+    async def evaluate_async(self, request):
+        """Async evaluation supporting concurrent rule evaluation for non-ordered algorithms."""
+        if not self.check_target(request):
+            return Response(request, decision=RESULT_NOT_APPLICABLE)
+
+        # Non-ordered algorithms: evaluate all rules concurrently
+        if self.algorithm in [deny_overrides, permit_overrides]:
+            tasks = [asyncio.create_task(rule.evaluate_async(request) if hasattr(rule, 'evaluate_async') else asyncio.create_task(asyncio.coroutine(rule.evaluate)(request)))
+                      for rule in self.rules]
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
+            # Filter out exceptions
+            valid_responses = [r for r in responses if isinstance(r, Response)]
+            if not valid_responses:
+                return Response(request, decision=RESULT_INDETERMINATE)
+
+            # Call the async version of the algorithm
+            if self.algorithm == deny_overrides:
+                result, _ = await deny_overrides_async(valid_responses)
+            else:
+                result, _ = await permit_overrides_async(valid_responses)
+            return result
+        else:
+            # Ordered or other: sequential evaluation with early termination
+            response = None
+            for rule in self.rules:
+                element_result = rule.evaluate(request)
+                response, is_final = self.algorithm(old_response=response, new_response=element_result)
+                if is_final:
+                    break
+            return response
 # EOF

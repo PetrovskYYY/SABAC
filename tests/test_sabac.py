@@ -1,21 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Simplified Attribute Based Access Control
+Simplified Attribute-Based Access Control
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
 __license__ = "LGPL"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
-# Standard library imports
 import json
 import os
 import logging
-# 3rd party imports
+
 import pytest
-# Local source imports
-from sabac import PDP, FilePAP, PIP, InformationProvider, DenyBiasedPEP, Request
+
+from sabac import RESULT_DENY, RESULT_PERMIT, Response, InformationProvider, FilePAP, PIP, DenyBiasedPEP, Request, PDP
 
 
 @pytest.fixture(scope="module")
@@ -375,4 +374,89 @@ def test_sub_value_evaluation(pdp_instance):
         }
     }, True, debug=True)
     assert permit
+
+
+# Algorithm Tests
+@pytest.fixture(scope="module")
+def algorithm_pdp_instance():
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    test_pap = FilePAP(f"{script_dir}/test_policies_algorithms.json")
+    test_pip = PIP()
+    test_pdp = PDP(pap_instance=test_pap, pip_instance=test_pip)
+    return test_pdp
+
+
+def test_deny_overrides(algorithm_pdp_instance):
+    """Test DENY_OVERRIDES returns DENY when any rule denies."""
+    pdp = algorithm_pdp_instance
+    context = {'action': 'write'}
+    result = pdp.evaluate(Request(attributes=context))
+    assert result.decision == RESULT_DENY
+
+
+def test_permit_overrides(algorithm_pdp_instance):
+    """Test PERMIT_OVERRIDES returns PERMIT when any rule permits."""
+    pdp = algorithm_pdp_instance
+    context = {'action': 'read'}
+    result = pdp.evaluate(Request(attributes=context))
+    assert result.decision == RESULT_PERMIT
+
+
+def test_first_applicable(algorithm_pdp_instance):
+    """Test FIRST_APPLICABLE returns first applicable result."""
+    pdp = algorithm_pdp_instance
+    context = {'action': 'view'}
+    result = pdp.evaluate(Request(attributes=context))
+    assert result.decision == RESULT_PERMIT
+
+
+def test_ordered_deny_overrides(algorithm_pdp_instance):
+    """Test ORDERED_DENY_OVERRIDES stops on first DENY."""
+    # Get the specific policy (item 4) that uses ordered_deny_overrides
+    pdp = algorithm_pdp_instance
+    policy = pdp.PAP.root_policy_set.items[4]  # Ordered Deny Overrides Test Policy
+    assert policy.algorithm.__name__ == 'ordered_deny_overrides'
+
+    # First rule is PERMIT, second is DENY. Ordered should stop at DENY.
+    context = {'action': 'execute'}
+    request = Request(attributes=context)
+    result = policy.evaluate(request)
+    assert result.decision == RESULT_DENY
+
+
+def test_ordered_permit_overrides(algorithm_pdp_instance):
+    """Test ORDERED_PERMIT_OVERRIDES stops on first PERMIT."""
+    pdp = algorithm_pdp_instance
+    context = {'action': 'execute'}
+    result = pdp.evaluate(Request(attributes=context))
+    assert result.decision == RESULT_PERMIT
+
+
+def test_only_one_applicable(algorithm_pdp_instance):
+    """Test ONLY_ONE_APPLICABLE returns decision when exactly one applicable."""
+    pdp = algorithm_pdp_instance
+    # Only the PERMIT rule should apply
+    context = {'action': 'list'}
+    result = pdp.evaluate(Request(attributes=context))
+    assert result.decision == RESULT_PERMIT
+
+
+@pytest.mark.asyncio
+async def test_async_deny_overrides():
+    """Test async evaluation of deny_overrides."""
+    from sabac import deny_overrides_async
+    response1 = Response(None, decision=RESULT_PERMIT)
+    response2 = Response(None, decision=RESULT_DENY)
+    result, _ = await deny_overrides_async([response1, response2])
+    assert result.decision == RESULT_DENY
+
+
+@pytest.mark.asyncio
+async def test_async_permit_overrides():
+    """Test async evaluation of permit_overrides."""
+    from sabac import permit_overrides_async
+    response1 = Response(None, decision=RESULT_DENY)
+    response2 = Response(None, decision=RESULT_PERMIT)
+    result, _ = await permit_overrides_async([response1, response2])
+    assert result.decision == RESULT_PERMIT
 # EOF
