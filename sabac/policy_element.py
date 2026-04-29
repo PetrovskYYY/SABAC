@@ -11,9 +11,7 @@ Object structure:
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
-__credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 from dataclasses import dataclass, field, InitVar
@@ -62,7 +60,7 @@ class PolicyElement:
             if isinstance(json_data['target'], dict):
                 self.target = json_data['target']
             else:
-                ValueError("Target should be a dict")
+                raise ValueError("Target should be a dict")
 
         def add_list_from_json(field, class_):
             if field in json_data:

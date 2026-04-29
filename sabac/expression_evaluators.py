@@ -5,9 +5,7 @@ Expression evaluators
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2026, SABAC"
-__credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import uuid

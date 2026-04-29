@@ -5,9 +5,7 @@ Abstract entity for joining code required for both obligations and advices.
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, SABAC"
-__credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import logging

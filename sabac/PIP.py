@@ -9,13 +9,10 @@ Information could be gained from:
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, sabac"
-__credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import logging
-import uuid
 from typing import List, Optional, Any
 
 from .expression_evaluators import expression_evaluators
@@ -38,8 +35,6 @@ class PIP:
             key = next(iter(expression))
             if key in expression_evaluators:
                 expression_value = expression[key]
-                # if isinstance(expression_value, dict) and len(expression) == 1:
-                #     expression_value = self.evaluate_expression(expression, request)
                 result = expression_evaluators[key](self, expression_value, request)
             else:
                 logging.warning(f"Unknown operator '{key}' in expression {expression}.")
@@ -48,48 +43,8 @@ class PIP:
             # Not an expression - returning as is
             return expression
 
-    # def evaluate_expression(self, attribute_value: Any, request: Request) -> Any:
-    #     # FixMe: Avoid calculation requests from userspace
-    #     result = None
-    #     if len(attribute_value) != 1:
-    #         logging.warning(
-    #             'Calculated attributes should have exactly one element, but {element_count} given: {attribute}. '
-    #             'Request: {request}'.format(
-    #                 element_count=len(attribute_value),
-    #                 attribute=attribute_value,
-    #                 request=request
-    #             )
-    #         )
-    #         import traceback
-    #         traceback.print_stack()
-    #
-    #     elif '@' in attribute_value:
-    #         # logging.debug(f"Evaluating `{attribute_value['@']}`...")
-    #         # Extracting attribute value from context using attribute name
-    #         result = self.get_attribute_value(attribute_value['@'], request)
-    #     elif '@UUID' in attribute_value:
-    #         # Extracting attribute value from context using the attribute name
-    #         try:
-    #             result = uuid.UUID(attribute_value['@UUID'])
-    #         except:
-    #             result = None
-    #     else:
-    #         result = attribute_value
-    #         # logging.warning("Unknown operator '%s'." % attribute_value)
-    #         # raise ValueError("Unknown operator '%s'." % attribute_value)
-    #
-    #     return result
-
     def get_attribute_value(self, attribute_name, request) -> Any:
         attribute_value = self.fetch_attribute(attribute_name, request)
-
-        # if isinstance(attribute_value, dict):
-        #     # Attribute value requires evaluation
-        #     evaluated_attribute_value = self.evaluate_expression(attribute_value, request)
-        #     if evaluated_attribute_value is None:
-        #         logging.warning(f"Found no value while evaluating attribute `{attribute_name}` in request {request}.")
-        #     attribute_value = evaluated_attribute_value
-
         return attribute_value
 
     def evaluate_statement(self, left_part: str, right_part: Any, request: Request) -> bool:
@@ -114,7 +69,6 @@ class PIP:
                         shortcut.
         """
         context_attribute_value = self.get_attribute_value(left_part, request)
-        # result = None
         # TODO: Cache value
 
         if not isinstance(right_part, dict):
@@ -130,7 +84,6 @@ class PIP:
             operation_shortcut = next(iter(right_part))
 
             if operation_shortcut in operator_evaluators:
-                right_part_value = right_part[operation_shortcut]
                 result = operator_evaluators[operation_shortcut](
                     policy_information_point=self,
                     attribute_name=left_part,
@@ -138,6 +91,7 @@ class PIP:
                     operand=right_part[operation_shortcut],
                     request=request
                 )
+                # right_part_value = right_part[operation_shortcut]
                 # logging.debug(f"Evaluated `{left_part}`({context_attribute_value}) {operation_shortcut} `{right_part[operation_shortcut]}`: {result}")
             else:
                 logging.warning("Unknown operator '%s'." % right_part.keys())

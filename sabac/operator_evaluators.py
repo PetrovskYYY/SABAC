@@ -5,14 +5,11 @@ Functions for evaluation of expressions in rules
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2024, SABAC"
-__credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import logging
 import uuid
-from types import GeneratorType
 from typing import Optional, Any
 
 from .request import Request
@@ -67,7 +64,6 @@ def equals_operator_eval(
 ) -> Optional[bool]:
     result = None
     if isinstance(operand, str):
-        # extracted_attribute_value = policy_information_point.get_attribute_value(operand, request)
         result = attribute_value == operand
     elif isinstance(operand, dict) and len(operand) == 1:
         # Operand value is a sub-attribute expression
@@ -94,7 +90,6 @@ def not_equals_operator_eval(
 ) -> Optional[bool]:
     result = None
     if isinstance(operand, str):
-        # extracted_attribute_value = policy_information_point.get_attribute_value(operand, request)
         result = attribute_value != operand
     elif operand is None:
         result = attribute_value is not None
@@ -137,7 +132,6 @@ def contains_operator_eval(
             if operand_item in attribute_value:
                 return True
         return False
-        # result = any(item in attribute_value for item in operand)
 
     elif isinstance(operand, dict):
         calculated_attribute_value = policy_information_point.evaluate_expression(operand, request)
@@ -174,17 +168,6 @@ def contained_in_operator_eval(
         calculated_value = policy_information_point.evaluate_expression(operand, request)
         if isinstance(calculated_value, list):
             result = attribute_value in calculated_value
-            # logging.warning(f"Expression '{attribute_name}'({attribute_value}): @in ('{operand}'({calculated_value})): {result}")
-        # elif isinstance(calculated_value, dict) and len(calculated_value) == 1:
-        #     # Attribute value is a sub-attribute expression
-        #     sub_list = policy_information_point.evaluate_expression(calculated_value, request)
-        #     # sub_list = policy_information_point.evaluate_attribute_value(operand=calculated_value, request=request)
-        #     logging.error(f"Evaluated {attribute_name} in {sub_list} = {result}")
-        #     if not isinstance(sub_list, list):
-        #         logging.warning(f"Expression '{calculated_value}' value ([{sub_list.__class__.__name__}]{sub_list}) is not list.")
-        #         return False
-        #     else:
-        #         result = attribute_value in sub_list
         else:  # pragma: no cover
             logging.debug(f"Expression '{attribute_name}'({attribute_value}): @in ('{operand}'({calculated_value})): "
                             f"Operand value is not list.")
@@ -206,7 +189,6 @@ def uuid_operator_eval(
 ) -> Optional[bool]:
     result = None
     if isinstance(operand, str):
-        # extracted_attribute_value = policy_information_point.get_attribute_value(operand, request)
         result = uuid.UUID(operand)
     else:  # pragma: no cover
         logging.warning(

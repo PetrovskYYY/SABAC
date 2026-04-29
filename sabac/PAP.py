@@ -5,9 +5,7 @@ Policy administration point
 """
 __author__ = "Yuriy Petrovskiy"
 __copyright__ = "Copyright 2020, sabac"
-__credits__ = ["Yuriy Petrovskiy"]
 __license__ = "LGPL"
-__maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import json
