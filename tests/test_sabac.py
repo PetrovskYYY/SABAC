@@ -15,7 +15,6 @@ import logging
 import pytest
 
 from sabac import *
-from sabac.sabac.utils import logging_by_level_name
 
 
 @pytest.fixture(scope="module")

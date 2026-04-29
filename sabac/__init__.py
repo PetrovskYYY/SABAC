@@ -30,5 +30,6 @@ from .operator_evaluators import (
     uuid_operator_eval,
     not_operator_eval
 )
+from .utils import logging_by_level_name
 
 # EOF
