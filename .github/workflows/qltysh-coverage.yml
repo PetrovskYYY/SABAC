@@ -8,9 +8,6 @@ on:
 
 jobs:
   test:
-    env:
-      # CC_TEST_REPORTER_ID should be stored in GitHub Secrets
-      CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
     strategy:
       matrix:
         platform: [ ubuntu-22.04 ]
@@ -33,10 +30,10 @@ jobs:
     - name: Generate coverage information
       run: |
         PYTHONPATH=. coverage run -m pytest ./tests
-        coverage xml
+        coverage lcov
 
     - name: Upload coverage to Qlty
       uses: qltysh/qlty-action/coverage@v2
       with:
-        oidc: true  # Enables OIDC authentication
-        files: coverage.xml
+        token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+        files: reports/lcov.info
