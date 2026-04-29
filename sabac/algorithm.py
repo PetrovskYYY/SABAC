@@ -17,7 +17,13 @@ from .response import Response
 
 
 def deny_overrides(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
-    """Non-ordered: Evaluate ALL policies (never early exit)."""
+    """
+    Non-ordered: Evaluate ALL policies (never early exit).
+
+    :param old_response: Previous response or None
+    :param new_response: New response to combine
+    :return: Tuple of (combined_response, is_final)
+    """
     if old_response is None:
         return new_response, False
     combined = new_response.copy()
@@ -41,7 +47,12 @@ def deny_overrides(old_response: Optional[Response], new_response: Response) -> 
 
 
 async def deny_overrides_async(responses: List[Response]) -> Tuple[Response, bool]:
-    """Non-ordered async: Evaluate all policies concurrently."""
+    """
+    Non-ordered async: Evaluate all policies concurrently.
+
+    :param responses: List of Response objects
+    :return: Tuple of (combined_response, is_final)
+    """
     if not responses:
         return Response(None, decision=RESULT_NOT_APPLICABLE), True
     combined = responses[0].copy()
@@ -66,7 +77,13 @@ async def deny_overrides_async(responses: List[Response]) -> Tuple[Response, boo
 
 
 def permit_overrides(old_response: Optional[Response], new_response: Response) -> Tuple[Response, bool]:
-    """Non-ordered: Evaluate ALL policies (never early exit)."""
+    """
+    Non-ordered: Evaluate ALL policies (never early exit).
+
+    :param old_response: Previous response or None
+    :param new_response: New response to combine
+    :return: Tuple of (combined_response, is_final)
+    """
     if old_response is None:
         return new_response, False
     combined = new_response.copy()
@@ -90,7 +107,12 @@ def permit_overrides(old_response: Optional[Response], new_response: Response) -
 
 
 async def permit_overrides_async(responses: List[Response]) -> Tuple[Response, bool]:
-    """Non-ordered async: Evaluate all policies concurrently."""
+    """
+    Non-ordered async: Evaluate all policies concurrently.
+
+    :param responses: List of Response objects
+    :return: Tuple of (combined_response, is_final)
+    """
     if not responses:
         return Response(None, decision=RESULT_NOT_APPLICABLE), True
     combined = responses[0].copy()

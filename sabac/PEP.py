@@ -29,6 +29,11 @@ class PEP:
     def get_result(self, context, return_policy_id_list=False, debug=False):
         """
         Returns result object.
+
+        :param context: Policy context
+        :param return_policy_id_list: Should request result contain policy list
+        :param debug: Debug output
+        :return: Response object
         """
         request = Request(attributes=context, return_policy_id_list=return_policy_id_list)
         result = self.PDP.evaluate(request)
@@ -38,9 +43,10 @@ class PEP:
 
     def evaluate_result(self, result):
         """
-        :return:
-            True if policy evaluation result is permit,
-            False if deny
+        Evaluate the policy decision.
+
+        :param result: Response object from PDP
+        :return: True if policy evaluation result is permit, False if deny
         """
         if isinstance(result, Response):
             if result.decision == RESULT_PERMIT:
@@ -64,13 +70,12 @@ class PEP:
     def evaluate(self, context, return_policy_id_list=False, debug=False):
         """
         Policy Enforcement Point evaluation.
+
         :param context: Policy context
-        :param return_policy_id_list: Should request result contain a list of policies that were used
-            during making the decision
+        :param return_policy_id_list: Should request result contain a list of policies
+            that were used during making the decision
         :param debug: Debug output
-        :return:
-            True if a policy evaluation result is permit,
-            False if deny
+        :return: True if a policy evaluation result is permit, False if deny
         """
         result = self.get_result(context, return_policy_id_list, debug)
         return self.evaluate_result(result)
@@ -92,8 +97,9 @@ class PEP:
 
     def run_tests(self, tests:List[Dict]) -> List:
         """
-        :return:
-        :param tests: List of tests in the following format:
+        Run tests from a list of test definitions.
+
+        :param tests: List of tests in the following format::
                 {
                     "description": "Unauthorized users should be able to access authorization",
                     "context": {
@@ -102,7 +108,7 @@ class PEP:
                     },
                     "result": "Permit"
                 }
-        :return List of failed tests
+        :return: List of failed tests
         """
         result = []
         for test in tests:

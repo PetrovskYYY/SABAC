@@ -1,5 +1,12 @@
 # Build
 REF: https://packaging.python.org/tutorials/packaging-projects/
+
+Install development dependencies first:
+```bash
+pip install -r requirements-dev.txt
+```
+
+Then build:
 ```shell script
 python -m pip install --user --upgrade setuptools wheel
 python setup.py sdist bdist_wheel
