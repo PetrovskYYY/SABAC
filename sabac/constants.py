@@ -10,6 +10,7 @@ __license__ = "LGPL"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
+import sys
 from enum import Enum, auto
 
 DEFAULT_ALGORITHM_NAME = 'DENY_UNLESS_PERMIT'
@@ -32,7 +33,7 @@ class RuleEvaluationResult(Enum):
     INDETERMINATE_DP = auto()
 
     def __repr__(self):
-        v_repr = self.__class__._value_repr_ or repr
+        v_repr = self.__class__._value_repr_ or repr if sys.version_info >= (3, 10) else repr
         return f"<{self._name_}({v_repr(self._value_)})>"
 
     # def __str__(self):
