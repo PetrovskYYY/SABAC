@@ -38,4 +38,5 @@ jobs:
     - name: Upload coverage to Qlty
       uses: qltysh/qlty-action/coverage@v2
       with:
+        oidc: true  # Enables OIDC authentication
         file: coverage.xml
