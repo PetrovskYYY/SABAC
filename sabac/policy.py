@@ -65,7 +65,7 @@ class Policy(PolicyElement):
     def to_json(self):
         result = super().to_json()
         if self.algorithm:
-            result['algorithm'] = self.algorithm
+            result['algorithm'] = self.algorithm.__name__
         if len(self.rules) > 0:
             rules_data = []
             for rule in self.rules:

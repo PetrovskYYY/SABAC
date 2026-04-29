@@ -15,7 +15,20 @@ from .PEP import DenyBiasedPEP, PermitBiasedPEP, BasePEP, PEP
 from .PDP import PDP
 from .PAP import PAP, FilePAP
 from .request import Request
+from .policy import Policy
+from .policy_set import PolicySet
 from .algorithm import *
 from .constants import *
+from .rule import Rule
+from .expression_evaluators import evaluate_expression, uuid_evaluator, str_evaluator
+from .operator_evaluators import (
+    calculate_operator_eval,
+    equals_operator_eval,
+    not_equals_operator_eval,
+    contains_operator_eval,
+    contained_in_operator_eval,
+    uuid_operator_eval,
+    not_operator_eval
+)
 
 # EOF

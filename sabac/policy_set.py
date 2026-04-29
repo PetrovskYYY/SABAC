@@ -25,18 +25,19 @@ __email__ = "yuriy.petrovskiy@gmail.com"
 import asyncio
 import logging
 from dataclasses import dataclass, field
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Callable
 
 from .constants import RESULT_NOT_APPLICABLE
 from .policy import Policy
 from .policy_element import PolicyElement
-from .algorithm import get_algorithm_by_name, POLICY_SET_ALGORITHMS, deny_overrides, permit_overrides
+from .algorithm import get_algorithm_by_name, POLICY_SET_ALGORITHMS, deny_unless_permit, deny_overrides, permit_overrides
 from .response import Response
 
 
 @dataclass()
 class PolicySet(Policy):
     items: List[Union[Policy, "PolicySet"]] = field(default_factory=list)
+    algorithm: Optional[Callable] = field(default=deny_unless_permit)
 
     @staticmethod
     def get_algorithm_from_json(json_data: dict):
@@ -81,6 +82,15 @@ class PolicySet(Policy):
 
         if result is None:
             result = Response(request, decision=RESULT_NOT_APPLICABLE)
+        return result
+
+    def to_json(self):
+        result = super().to_json()
+        if len(self.items) > 0:
+            items_data = []
+            for item in self.items:
+                items_data.append(item.to_json())
+            result['items'] = items_data
         return result
 
     async def evaluate_async(self, request) -> Response:

@@ -41,7 +41,7 @@ class Rule(PolicyElement):
         if self.condition is not None:
             result['condition'] = self.condition
         if self.effect is not None:
-            result['effect'] = self.effect
+            result['effect'] = self.effect.name
         return result
 
     def update_from_json(self, json_data: dict) -> None:
