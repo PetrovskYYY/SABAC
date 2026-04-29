@@ -36,14 +36,19 @@ jobs:
         python -m pip install coverage
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         
-    - name: Downloading reporter tool
-      run: | 
-        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-        chmod +x ./cc-test-reporter
-        ./cc-test-reporter before-build
-    - name: Generate test coverage information
-      run: |
-        PYTHONPATH=. coverage run -m pytest ./tests
-        coverage xml
-        ./cc-test-reporter after-build
+#    - name: Downloading reporter tool
+#      run: |
+#        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+#        chmod +x ./cc-test-reporter
+#        ./cc-test-reporter before-build
+    - name: Run Qlty Analysis
+      uses: qltysh/qlty-action@v1
+      with:
+        # Optional: specify subcommands like fmt or coverage upload
+        command: coverage upload
+#    - name: Generate test coverage information
+#      run: |
+#        PYTHONPATH=. coverage run -m pytest ./tests
+#        coverage xml
+#        ./cc-test-reporter after-build
   

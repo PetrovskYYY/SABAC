@@ -6,7 +6,8 @@ Simple Attribute Based Access Control
 [![Documentation Status](https://readthedocs.org/projects/sabac/badge/?version=latest)](https://sabac.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/sabac.svg)](http://badge.fury.io/py/sabac)
 [![Coverage Status](https://coveralls.io/repos/github/PetrovskYYY/SABAC/badge.svg?branch=master)](https://coveralls.io/github/PetrovskYYY/SABAC?branch=master)
-[![Code Climate](https://codeclimate.com/github/PetrovskYYY/SABAC/badges/gpa.svg)](https://codeclimate.com/github/PetrovskYYY/SABAC)
+[![Code Climate](https://qlty.sh/gh/PetrovskYYY/projects/SABAC/maintainability.svg)](https://qlty.sh/gh/PetrovskYYY/projects/SABAC) 
+
 
 # Description
 Python implementation of Attribute Based Access Control (ABAC). 
