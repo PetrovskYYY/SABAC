@@ -4,23 +4,23 @@
 Expression evaluators
 """
 __author__ = "Yuriy Petrovskiy"
-__copyright__ = "Copyright 2026, Rating backend"
+__copyright__ = "Copyright 2026, SABAC"
 __credits__ = ["Yuriy Petrovskiy"]
-__license__ = ""  # TODO Add licence
+__license__ = "LGPL"
 __maintainer__ = "Yuriy Petrovskiy"
 __email__ = "yuriy.petrovskiy@gmail.com"
 
 import uuid
 from typing import Any
 
-# from sabac import Request
+from .request import Request
 
 
-def evaluate_expression(policy_information_provider: "PIP", expression: Any, request: 'Request') -> Any:
+def evaluate_expression(policy_information_provider: "PIP", expression: Any, request: Request) -> Any:  # noqa: F821
     return policy_information_provider.get_attribute_value(expression, request)
 
 
-def uuid_evaluator(policy_information_provider: "PIP", expression: Any, request: 'Request') -> Any:
+def uuid_evaluator(policy_information_provider: "PIP", expression: Any, request: Request) -> Any:  # noqa: F821
     expression_value = expression
     if isinstance(expression, dict) and len(expression) == 1:
         expression_value = policy_information_provider.evaluate_expression(expression, request)
@@ -38,7 +38,7 @@ def uuid_evaluator(policy_information_provider: "PIP", expression: Any, request:
     return result
 
 
-def str_evaluator(policy_information_provider: "PIP", expression: Any, request: 'Request') -> Any:
+def str_evaluator(policy_information_provider: "PIP", expression: Any, request: Request) -> Any:  # noqa: F821
     try:
         result = str(expression)
     except:
