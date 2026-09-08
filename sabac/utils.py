@@ -39,18 +39,18 @@ def get_object_by_path(root_object: Any, path_parts: List[str]) -> Any:
                     return None
     return obj
 
-def logging_by_level_name(level_name,**kwargs):
+def logging_by_level_name(level_name:str, *args, **kwargs):
     if level_name == 'DEBUG':
-        return logging.debug(**kwargs)
+        return logging.debug(*args, **kwargs)
     elif level_name == 'INFO':
-        return logging.info(**kwargs)
+        return logging.info(*args, **kwargs)
     elif level_name == 'WARNING':
-        return logging.warning(**kwargs)
+        return logging.warning(*args, **kwargs)
     elif level_name == 'ERROR':
-        return logging.error(**kwargs)
+        return logging.error(*args, **kwargs)
     elif level_name == 'CRITICAL':
-        return logging.critical(**kwargs)
+        return logging.critical(*args, **kwargs)
     else:
-        return logging.log(level_name,**kwargs)
+        return logging.log(level_name,*args, **kwargs)
 
 # EOF

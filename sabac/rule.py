@@ -133,6 +133,6 @@ class Rule(PolicyElement):
                     'result': response.decision
                 })
         if self.debug:
-            logging_by_level_name(self.debug,f"Rule evaluation result: {response}")
+            logging_by_level_name(self.debug, f"Rule evaluation result: {response}")
         return response
 # EOF
